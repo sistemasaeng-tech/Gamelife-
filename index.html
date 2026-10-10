@@ -1171,14 +1171,33 @@ function trigger(){
   else{const s=a.spot;player.face='up';interactSpot(s);}
 }
 
+function hitAt(wx,wy){const S=state.scene;let best=null,bd=1e9;for(const n of S.npcs){const d=dist(wx,wy,n.x,n.y-24);if(d<36&&d<bd){best=n;bd=d;}}
+  if(best)return{x:best.x,y:best.y+30,a:{type:'npc',npc:best}};
+  for(const s of S.spots){if(dist(wx,wy,s.x,s.y)<s.r||dist(wx,wy,s.bx,s.by)<26)return{x:s.px,y:s.py,a:{type:'spot',spot:s}};}return null;}
+const DRAG={on:false,id:null,sx:0,sy:0,x0:0,y0:0,t0:0,moved:false,follow:false,hit:null};
 cv.addEventListener('pointerdown',e=>{
-  unlockAudio();if(!state.scene||!canMove())return;
-  const wx=cam.x+e.clientX/Z,wy=cam.y+e.clientY/Z,S=state.scene;
-  let best=null,bd=1e9;for(const n of S.npcs){const d=dist(wx,wy,n.x,n.y-24);if(d<36&&d<bd){best=n;bd=d;}}
-  if(best){setTarget(best.x,best.y+30,{type:'npc',npc:best});return;}
-  for(const s of S.spots){if(dist(wx,wy,s.x,s.y)<s.r||dist(wx,wy,s.bx,s.by)<26){setTarget(s.px,s.py,{type:'spot',spot:s});return;}}
-  setTarget(wx,wy,null);
+  e.preventDefault();unlockAudio();if(!state.scene||!canMove())return;
+  const wx=cam.x+e.clientX/Z,wy=cam.y+e.clientY/Z,hit=hitAt(wx,wy);
+  Object.assign(DRAG,{on:true,id:e.pointerId,sx:e.clientX,sy:e.clientY,x0:e.clientX,y0:e.clientY,t0:performance.now(),moved:false,hit,follow:!hit});
+  if(DRAG.follow){player.path=null;player.action=null;}
+  try{cv.setPointerCapture(e.pointerId);}catch(_){}
 });
+cv.addEventListener('pointermove',e=>{if(!DRAG.on||e.pointerId!==DRAG.id)return;DRAG.sx=e.clientX;DRAG.sy=e.clientY;
+  if(!DRAG.moved&&Math.hypot(e.clientX-DRAG.x0,e.clientY-DRAG.y0)>12){DRAG.moved=true;DRAG.follow=true;player.path=null;player.action=null;}});
+function endDrag(e,cancel){if(!DRAG.on||e.pointerId!==DRAG.id)return;DRAG.on=false;DRAG.follow=false;
+  if(cancel||!state.scene||!canMove())return;
+  const wx=cam.x+e.clientX/Z,wy=cam.y+e.clientY/Z;
+  if(!DRAG.moved){if(DRAG.hit)setTarget(DRAG.hit.x,DRAG.hit.y,DRAG.hit.a);else if(performance.now()-DRAG.t0<400)setTarget(wx,wy,null);}
+  else player.moving=false;}
+cv.addEventListener('pointerup',e=>endDrag(e,false));
+cv.addEventListener('pointercancel',e=>endDrag(e,true));
+function stepToward(tx,ty,dt,sp){
+  const dx=tx-player.x,dy=ty-player.y,d=Math.hypot(dx,dy);if(d<1)return false;
+  const step=Math.min(sp*dt,d),a0=Math.atan2(dy,dx);
+  for(const da of[0,.45,-.45,.9,-.9,1.35,-1.35]){const a=a0+da,mx=Math.cos(a)*step,my=Math.sin(a)*step;
+    if(!blocked(player.x+mx,player.y+my)){player.x+=mx;player.y+=my;player.walkT+=dt;player.face=Math.abs(mx)>Math.abs(my)?(mx>0?'right':'left'):(my>0?'down':'up');return true;}}
+  return false;
+}
 const KEYS={};addEventListener('keydown',e=>{KEYS[e.key]=true;});addEventListener('keyup',e=>{KEYS[e.key]=false;});
 
 function update(dt){
@@ -1194,7 +1213,12 @@ function update(dt){
   }
   if(searching&&NOW-searching.t0>1){const cb=searching.cb;searching=null;cb();}
   if(MG.on&&MG.ready&&MG.game&&MG.game.frame){MG.t+=dt;MG.game.frame(dt,MG.t);}
-  if(canMove()){
+  if(DRAG.follow&&!canMove())DRAG.follow=false;
+  if(canMove()&&DRAG.on&&DRAG.follow){
+    const tx=cam.x+DRAG.sx/Z,ty=cam.y+DRAG.sy/Z;
+    if(dist(player.x,player.y,tx,ty)>12)player.moving=stepToward(tx,ty,dt,195);else player.moving=false;
+  }
+  else if(canMove()){
     let kx=(KEYS.ArrowRight?1:0)-(KEYS.ArrowLeft?1:0),ky=(KEYS.ArrowDown?1:0)-(KEYS.ArrowUp?1:0);
     if(kx||ky){player.path=[[player.x+kx*30,player.y+ky*30]];player.action=null;}
     if(player.path&&player.path.length){
@@ -1203,7 +1227,7 @@ function update(dt){
         const[px,py]=player.path[0],dx=px-player.x,dy=py-player.y,d=Math.hypot(dx,dy);
         const near=()=>{const a=player.action;if(!a)return false;const ax=a.type==='npc'?a.npc.x:a.spot.px,ay=a.type==='npc'?a.npc.y:a.spot.py;return dist(player.x,player.y,ax,ay)<130;};
         if(d<3){player.path.shift();if(!player.path.length){player.moving=false;if(player.action){if(near())trigger();else player.action=null;}}}
-        else{const step=Math.min(175*dt,d),mx=dx/d*step,my=dy/d*step;let moved=false;
+        else{const step=Math.min(195*dt,d),mx=dx/d*step,my=dy/d*step;let moved=false;
           if(!blocked(player.x+mx,player.y+my)){player.x+=mx;player.y+=my;moved=true;}
           else if(Math.abs(mx)>.2&&!blocked(player.x+Math.sign(mx)*step,player.y)){player.x+=Math.sign(mx)*step;moved=true;}
           else if(Math.abs(my)>.2&&!blocked(player.x,player.y+Math.sign(my)*step)){player.y+=Math.sign(my)*step;moved=true;}
@@ -1244,6 +1268,7 @@ function render(){
   R(ctx,-600,-600,S.w+1200,600,S.top||S.bg);R(ctx,-600,S.h,S.w+1200,600,S.bot||S.bg);
   if(S.cache)ctx.drawImage(S.cache,0,0,S.w,S.h);
   if(S.anim)S.anim(ctx,t);
+  if(DRAG.on&&DRAG.follow){const fx=cam.x+DRAG.sx/Z,fy=cam.y+DRAG.sy/Z,pu=(Math.sin(t*8)+1)/2;ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.ellipse(fx,fy,16+pu*3,8+pu*1.5,0,0,TAU);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(fx,fy,16+pu*3,8+pu*1.5,0,0,TAU);ctx.stroke();}
   if(tapFx&&t-tapFx.t<.5){const p=(t-tapFx.t)/.5;ctx.strokeStyle=`rgba(255,255,255,${1-p})`;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(tapFx.x,tapFx.y,8+p*16,4+p*8,0,0,TAU);ctx.stroke();}
   const vx0=cam.x-350,vx1=cam.x+VW/Z+350,vy0=cam.y-100,vy1=cam.y+VH/Z+400;
   const list=[];for(const o of S.objects)if(o.x>vx0&&o.x<vx1&&o.y>vy0&&o.y<vy1)list.push({y:o.y,d:()=>o.draw(ctx,t)});
@@ -1562,7 +1587,7 @@ function showArrival(city){
   $('#arrive').classList.remove('hidden');
 }
 $('#pcBtn').addEventListener('click',()=>{unlockAudio();sfx('tap');$('#arrive').classList.add('hidden');state.busy=false;
-  const S=state.scene;if(S&&!S.visited){S.visited=true;setTimeout(()=>toast('Toque nas pessoas com 💬 para pedir dicas',3500),400);}});
+  const S=state.scene;if(S&&!S.visited){S.visited=true;setTimeout(()=>toast('Arraste o dedo para andar · toque nas pessoas com 💬',3800),400);}});
 let toastT=null;function toast(msg,ms=3000){const el=$('#toast');el.textContent=msg;el.classList.remove('hidden');el.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.classList.add('hidden'),400);},ms);}
 
 function updateHUD(){
@@ -1601,22 +1626,40 @@ function confetti(){
 function NF(n){const m=/^([A-G])([#b]?)(\d)$/.exec(n);if(!m)return null;const b={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);return 440*Math.pow(2,((+m[3]+1)*12+b-69)/12);}
 const SONGS={
   airport:{bpm:76,lead:'sine',lv:.024,ld:.5,bv:.035,bd:1.2,mel:'C5 E5 G5 B5 G5 E5 A4 C5 E5 G5 E5 C5 F4 A4 C5 E5 C5 A4 G4 B4 D5 F5 D5 B4',bass:'C3 - - - - - A2 - - - - - F2 - - - - - G2 - - - - -'},
-  roma:{bpm:150,lead:'triangle',lv:.022,ld:.16,bv:.035,bd:.3,mel:'A4 C5 E5 A5 E5 C5 G4 B4 D5 G5 D5 B4 F4 A4 C5 F5 C5 A4 E4 G#4 B4 E5 B4 G#4',bass:'A2 - - E2 - - G2 - - D2 - - F2 - - C3 - - E2 - - B2 - -'},
-  ny:{bpm:112,beat:1,lead:'triangle',lv:.02,ld:.22,bv:.045,bd:.45,mel:'- F4 - A4 - F4 - B4 - E4 - G4 - E4 - C#5',bass:'D3 F3 A3 C4 G2 B2 D3 F3 C3 E3 G3 B3 A2 C#3 E3 G3'},
-  marrakech:{bpm:118,lead:'triangle',lv:.022,ld:.22,bv:.04,bd:.35,mel:'D5 Eb5 F#5 G5 A5 G5 F#5 Eb5 D5 - A4 Bb4 C5 Bb4 A4 - G4 A4 Bb4 A4 G4 F#4 Eb4 D4',bass:'D2 - D3 - A2 - D3 D2 D2 - D3 - A2 - D3 - D2 - D3 - A2 - D3 D2'},
+  roma:{bpm:150,shk:1,lead:'triangle',lv:.022,ld:.16,bv:.035,bd:.3,mel:'A4 C5 E5 A5 E5 C5 G4 B4 D5 G5 D5 B4 F4 A4 C5 F5 C5 A4 E4 G#4 B4 E5 B4 G#4',bass:'A2 - - E2 - - G2 - - D2 - - F2 - - C3 - - E2 - - B2 - -'},
+  ny:{bpm:112,shk:1,beat:1,lead:'triangle',lv:.02,ld:.22,bv:.045,bd:.45,mel:'- F4 - A4 - F4 - B4 - E4 - G4 - E4 - C#5',bass:'D3 F3 A3 C4 G2 B2 D3 F3 C3 E3 G3 B3 A2 C#3 E3 G3'},
+  marrakech:{bpm:118,shk:1,lead:'triangle',lv:.022,ld:.22,bv:.04,bd:.35,mel:'D5 Eb5 F#5 G5 A5 G5 F#5 Eb5 D5 - A4 Bb4 C5 Bb4 A4 - G4 A4 Bb4 A4 G4 F#4 Eb4 D4',bass:'D2 - D3 - A2 - D3 D2 D2 - D3 - A2 - D3 - D2 - D3 - A2 - D3 D2'},
   porto:{bpm:96,lead:'triangle',lv:.024,ld:.4,bv:.035,bd:.9,mel:'A3 E4 A4 C5 A4 E4 E3 B3 E4 G#4 E4 B3 A3 E4 A4 C5 A4 E4 D3 A3 D4 F4 D4 A3 E3 B3 E4 G#4 B4 G#4',bass:'A2 - - - - - E2 - - - - - A2 - - - - - D2 - - - - - E2 - - - - -'},
-  miami:{bpm:104,lead:'sine',lv:.028,ld:.18,bv:.04,bd:.25,mel:'C5 - E5 G5 - E5 C5 - D5 - F5 A5 - F5 D5 - E5 - G5 B5 - G5 E5 - F5 A5 G5 E5 D5 C5 - -',bass:'C3 - - C3 - - C3 - D3 - - D3 - - D3 - E3 - - E3 - - E3 - F3 - - G3 - - G3 -'}
+  miami:{bpm:104,shk:1,lead:'sine',lv:.028,ld:.18,bv:.04,bd:.25,mel:'C5 - E5 G5 - E5 C5 - D5 - F5 A5 - F5 D5 - E5 - G5 B5 - G5 E5 - F5 A5 G5 E5 D5 C5 - -',bass:'C3 - - C3 - - C3 - D3 - - D3 - - D3 - E3 - - E3 - - E3 - F3 - - G3 - - G3 -'}
 };
 for(const k in SONGS){const s=SONGS[k];s.M=s.mel.split(/\s+/).map(NF);s.B=s.bass.split(/\s+/).map(NF);}
 const MU={song:null,i:0,next:0,timer:null};
 function playMusic(id){MU.song=SONGS[id]||null;MU.i=0;MU.next=AC?AC.currentTime+.15:0;if(!MU.timer)MU.timer=setInterval(tickMusic,40);}
 function tickMusic(){if(!AC||!MU.song||AC.state!=='running')return;const s=MU.song,step=60/s.bpm*(s.beat||.5);if(MU.next<AC.currentTime)MU.next=AC.currentTime+.05;
-  while(MU.next<AC.currentTime+.2){if(!muted&&!document.hidden){const w=MU.next-AC.currentTime,m=s.M[MU.i%s.M.length],b=s.B[MU.i%s.B.length];if(m)tone(m,s.ld,w,s.lead,s.lv);if(b)tone(b,s.bd,w,'sine',s.bv);}MU.i++;MU.next+=step;}}
+  while(MU.next<AC.currentTime+.2){if(!muted&&!document.hidden){const w=MU.next-AC.currentTime,m=s.M[MU.i%s.M.length],b=s.B[MU.i%s.B.length];if(m)tone(m,s.ld,w,s.lead,s.lv,'mus');if(b){tone(b,s.bd,w,'sine',s.bv,'mus');tone(b*2,s.bd*2.4,w,'sine',s.bv*.32,'mus');tone(b*3,s.bd*2.4,w,'triangle',s.bv*.14,'mus');}if(s.shk)shaker(w,MU.i%2?.025:.05);}MU.i++;MU.next+=step;}}
 
 /* ---------- audio ---------- */
 let AC=null;
-function unlockAudio(){try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MU.next=AC.currentTime+.2;}if(AC.state==='suspended')AC.resume();}catch(e){}}
-function tone(f,d,w=0,type='sine',v=.12){if(!AC||muted)return;const t=AC.currentTime+w,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05);}
+let SILENT=null;
+function silentWav(){const n=4000,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i);};
+  w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+  let s='';for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return'data:audio/wav;base64,'+btoa(s);}
+function unlockAudio(){try{
+  try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch(_){}
+  if(!SILENT){SILENT=new Audio(silentWav());SILENT.loop=true;SILENT.setAttribute('playsinline','');SILENT.preload='auto';}
+  if(SILENT.paused){const pr=SILENT.play();if(pr&&pr.catch)pr.catch(()=>{});}
+  if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MU.next=AC.currentTime+.2;
+    const comp=AC.createDynamicsCompressor();comp.connect(AC.destination);
+    AC.sfx=AC.createGain();AC.sfx.gain.value=1;AC.sfx.connect(comp);
+    const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;lp.connect(comp);
+    AC.mus=AC.createGain();AC.mus.gain.value=2.1;AC.mus.connect(lp);
+    const nb=AC.createBuffer(1,Math.round(AC.sampleRate*.06),AC.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*(1-i/nd.length);AC.noise=nb;}
+  if(AC.state==='suspended'||AC.state==='interrupted')AC.resume();
+}catch(e){}}
+['touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>unlockAudio(),{capture:true,passive:true}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AC){MU.next=AC.currentTime+.1;}});
+function shaker(w,v){if(!AC||muted)return;const t=AC.currentTime+w,src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();src.buffer=AC.noise;f.type='highpass';f.frequency.value=6500;g.gain.value=v;src.connect(f);f.connect(g);g.connect(AC.mus);src.start(t);}
+function tone(f,d,w=0,type='sine',v=.12,bus){if(!AC||muted)return;const t=AC.currentTime+w,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(bus==='mus'?AC.mus:AC.sfx);o.start(t);o.stop(t+d+.05);}
 function sfx(k){if(!AC||muted)return;switch(k){
   case'blip':tone(540+Math.random()*90,.045,0,'triangle',.025);break;
   case'tap':tone(720,.06,0,'sine',.06);break;
@@ -1643,7 +1686,7 @@ $('#startBtn').addEventListener('click',async()=>{
   try{await Promise.race([document.fonts.load('700 16px Fredoka'),new Promise(r=>setTimeout(r,1200))]);}catch(e){}
   fadeTo(()=>{$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');$('#bottomBar').classList.remove('hidden');enterScene('airport');state.busy=false;
     if(!state.introDone){setTimeout(()=>{const bia=state.scene.npcs[0];bia.talked=true;
-      say(bia.name,'#1d3557',['Olá, {nome}! Bem-vinda ao Aeroporto Internacional {nome}. ✈','Hoje você vai dar a volta ao mundo! Em cada cidade tem uma chave escondida... e um mistério para resolver.','Converse com as pessoas (💬). Quando alguém tiver novidade para você, aparece um ❗ amarelo em cima da cabeça.','Lá no alto da tela fica o seu 🎯 objetivo, e o que você ganhar vai para a 🎒 bolsa. Toque nos lugares com 🔍 para investigar.','Cada chave tem uma letra gravada. Guarde bem, porque o cofre do tesouro pede uma senha! 🔐','Para andar, é só tocar no chão. Boa viagem! ✈'],
+      say(bia.name,'#1d3557',['Olá, {nome}! Bem-vinda ao Aeroporto Internacional {nome}. ✈','Hoje você vai dar a volta ao mundo! Em cada cidade tem uma chave escondida... e um mistério para resolver.','Converse com as pessoas (💬). Quando alguém tiver novidade para você, aparece um ❗ amarelo em cima da cabeça.','Lá no alto da tela fica o seu 🎯 objetivo, e o que você ganhar vai para a 🎒 bolsa. Toque nos lugares com 🔍 para investigar.','Cada chave tem uma letra gravada. Guarde bem, porque o cofre do tesouro pede uma senha! 🔐','Para andar, arraste o dedo pela tela: eu vou atrás dele! Para conversar ou investigar, é só tocar. Boa viagem! ✈'],
         {onEnd:()=>{state.introDone=true;save();}});},700);}
   });
 });
