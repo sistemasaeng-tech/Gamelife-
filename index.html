@@ -1453,6 +1453,11 @@ BUILD_miami_in=function(){const w=800,h=720,wh=230;
     {label:'Jukebox',x:110,y:250,r:46,bx:110,by:180,px:110,py:340,on:()=>({lines:['🎵 Você aperta um botão e toca um sucesso dos anos 80! 🕺💃'],after:()=>sfx('win')})}];
   return S;};
 
+function meetingTable(c,x,y,t){SH(c,x,y,80,12);RR(c,x-76,y-42,152,30,8,'#c49a6c');R(c,x-70,y-14,8,14,'#8b5e34');R(c,x+62,y-14,8,14,'#8b5e34');
+  RR(c,x-36,y-50,72,8,3,'#adb5bd');RR(c,x-32,y-96,64,46,4,'#2b2d42');const cols=['#3a506b','#5c4d7d','#2d6a4f','#7f5539'];
+  for(let k=0;k<4;k++){const tx=x-28+(k%2)*29,ty=y-92+(k>>1)*20;R(c,tx,ty,27,18,cols[k]);C(c,tx+13,ty+8,4,'#f0c4a0');}
+  if(Math.sin(t*3)>0){c.strokeStyle='#06d6a0';c.lineWidth=1.5;c.strokeRect(x-28,y-92,27,18);}
+  RR(c,x+44,y-52,20,8,4,'#2b2d42');c.strokeStyle='#2b2d42';c.lineWidth=2;c.beginPath();c.arc(x+54,y-52,9,Math.PI,0);c.stroke();}
 BUILD_cea_office=function(){const w=700,h=620,wh=210;
   const S=roomScene('cea_office',w,h,wh,{title:'💼 Escritório da C&A',parent:'cea',music:'cea',color:'#2563c9'});
   S.ground=(g,r)=>{R(g,0,wh,w,h-wh,'#9aa7b8');for(let y=wh;y<h;y+=40)R(g,0,y,w,1.5,'rgba(0,0,0,.08)');for(let x=0;x<w;x+=40)R(g,x,wh,1.5,h-wh,'rgba(0,0,0,.08)');
@@ -1462,11 +1467,13 @@ BUILD_cea_office=function(){const w=700,h=620,wh=210;
     [40,62,50,80,96].forEach((v,i)=>{R(g,262+i*38,148-v,24,v,['#2563c9','#2a9d8f','#f4c20d','#e63946','#9b5de5'][i]);});
     roomShell(g,w,h,'#9aa3ad');};
   const job=(title,desc,pay,id)=>({lines:[`💼 ${title}`,desc,`Paga até R$ ${pay}.`],buttons:[{label:'Começar tarefa 💪',main:true,fn:()=>startMG(id)},{label:'Agora não'}]});
-  S.objects=[O(350,340,224,40,officeDesk),O(80,262,66,40,(c,x,y)=>filing(c,x,y)),O(620,262,70,30,(c,x,y)=>coffeeMachine(c,x,y)),O(640,560,28,10,(c,x,y)=>plant(c,x,y))];
+  S.objects=[O(350,340,224,40,officeDesk),O(80,262,66,40,(c,x,y)=>filing(c,x,y)),O(620,262,70,30,(c,x,y)=>coffeeMachine(c,x,y)),O(640,560,28,10,(c,x,y)=>plant(c,x,y)),O(200,522,152,30,meetingTable)];
   S.npcs=[{name:'Seu Roberto, supervisor',x:540,y:420,face:'left',look:{skin:'#e8b892',hair:'short',hc:'#8a8a8a',top:'#1f3b73',legs:'#2b2d42',glasses:true,badge:true},
-    lines:['Oi, {nome}! Hoje a caixa de e-mails da loja está lotada. 📧','Cada e-mail que vai para a pasta certa ajuda a loja inteira. E rende um extra no seu bolso! 💰']}];
+    lines:['Oi, {nome}! Hoje a caixa de e-mails da loja está lotada. 📧','Cada e-mail que vai para a pasta certa ajuda a loja inteira. E rende um extra no seu bolso! 💰','Ah, e as avaliações da equipe estão no arquivo. E daqui a pouco tem call com a diretoria, na mesa de reunião! 💻']}];
   S.spots=[S.exit,
     {label:'Computador',work:true,x:350,y:270,r:70,bx:350,by:176,px:350,py:412,on:()=>job('Computador','Organize a caixa de e-mails da loja: mande cada e-mail para a pasta certa (Estoque, RH ou Spam).',100,'email')},
+    {label:'Avaliação da equipe',work:true,x:80,y:215,r:50,bx:80,by:140,px:80,py:302,on:()=>job('Avaliação da equipe','Veja os resultados de cada funcionário e decida: manter ou desligar. Regra da loja: 2 ou mais pontos vermelhos, desliga.',96,'equipe')},
+    {label:'Reunião online',work:true,x:200,y:470,r:62,bx:200,by:396,px:200,py:560,on:()=>job('Reunião online','Participe da call com a equipe: responda bem às perguntas e mute o microfone quando tiver barulho!',96,'call')},
     {label:'Cafeteira',x:620,y:230,r:40,bx:620,by:150,px:620,py:310,msg:'☕ Um cafezinho fresquinho. Energia para trabalhar!'}];
   return S;};
 
@@ -2022,7 +2029,7 @@ function updateHUD(){
   $('#loc').textContent=S.title?S.title:isCity?`${CITY[S.id].flag} ${CITY[S.id].name}`:isWork?'👗 C&A · Trabalho':isHome?'🏠 Casa':'✈ Aeroporto';
   let o;
   if(S.id==='casa_in')o='Converse com a família 💬 · o 🚗 carro está lá fora';
-  else if(S.id==='cea_office')o=need?(!poor?`Já dá para a passagem para <b>${need.name}</b>! Pegue o 🚗 carro ✈`:`Trabalhe no <b>computador</b> 💻 · faltam <b>R$ ${need.price-state.money}</b>`):'Trabalhe no <b>computador</b> 💻';
+  else if(S.id==='cea_office')o=need?(!poor?`Já dá para a passagem para <b>${need.name}</b>! Pegue o 🚗 carro ✈`:`Tarefas com <b>R$</b>: computador, avaliações e call · faltam <b>R$ ${need.price-state.money}</b>`):'Tarefas com <b>R$</b>: computador, avaliações e call 💻';
   else if(S.parent&&CITY[S.parent]){const P=SCENES[S.parent];o=state.keys[S.parent]?'Chave encontrada! Volte ao <b>aeroporto</b> ✈':(P&&P.objective?P.objective(Q(S.parent)):'Explore! 🔍');}
   else if(isHome)o=countKeys()===5?'Pegue o 🚗 <b>carro</b> e vá abrir o cofre no aeroporto 🎁':'Toque no 🚗 <b>carro branco</b> para sair';
   else if(isWork)o=need?(!poor?`Já dá para a passagem para <b>${need.name}</b>! Pegue o 🚗 carro ✈`:`Faça as tarefas com o selo <b>R$</b> · faltam <b>R$ ${need.price-state.money}</b>`):'Pegue o 🚗 <b>carro</b> e vá ao aeroporto ✈';
@@ -2220,6 +2227,92 @@ MINI.email={title:'Computador do escritório',sub:'Leia cada e-mail e mande para
       if(!this.anim){RR(c,140,268,220,8,4,'rgba(0,0,0,.1)');RR(c,140,268,220*Math.max(0,this.tl/this.lim),8,4,this.tl/this.lim>.35?'#2a9d8f':'#e63946');}}
     R(c,180,300,40,30,'#2b2d42');RR(c,130,326,140,10,4,'#2b2d42');RR(c,60,356,280,40,8,'#dee2e6');for(let r=0;r<3;r++)for(let k=0;k<12;k++)RR(c,70+k*22,362+r*11,18,8,2,'#ffffff');
   }
+};
+
+
+/* Avaliação da equipe */
+const EMPN=[['Carla','👩'],['Diego','👨'],['Fernanda','👩‍🦰'],['Bruno','🧔'],['Patrícia','👱‍♀️'],['Rafael','👨‍🦱'],['Juliana','👩‍🦱'],['Thiago','🧑'],['Vanessa','🙎‍♀️'],['Marcos','👨‍🦳']];
+const OBS_OK=['Cliente elogiou o atendimento 💬','Sempre ajuda os colegas 🤝','Monta vitrines lindas ✨','Nunca falta e está sempre sorrindo 😊'];
+const OBS_BAD=['Tirou uma soneca no provador 😴','Some na hora do movimento 🫥','Vive no celular durante o caixa 📱','Deixa as araras todas bagunçadas 🙈'];
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+MINI.equipe={title:'Avaliação da equipe',sub:'Veja os resultados de cada funcionário e decida. Regra da loja: quem tem 2 ou mais pontos vermelhos é desligado.',
+  start(){const pool=EMPN.slice().sort(()=>Math.random()-.5).slice(0,6),bads=[1,1,1,0,0,0].sort(()=>Math.random()-.5);
+    this.list=pool.map((p,i)=>this.mk(p,bads[i]));this.i=0;this.ok=0;this.pay=0;this.anim=null;this.end=false;
+    mgCtrl('<button data-d="keep"><span>✅</span>Manter</button><button data-d="fire"><span>👋</span>Desligar</button>',2);
+    document.querySelectorAll('#mgCtrl button').forEach(b=>b.onclick=()=>this.press(b.dataset.d));this.prog();mgMsg('Analise a ficha e decida 🧐');},
+  mk(p,bad){const e={nome:p[0],face:p[1]};const badSet=new Set();
+    if(bad){const k=['v','a','n'].sort(()=>Math.random()-.5);badSet.add(k[0]);badSet.add(k[1]);if(Math.random()<.3)badSet.add(k[2]);}
+    const mid=bad?null:(Math.random()<.6?['v','a','n'][ri(0,2)]:null);
+    e.v=badSet.has('v')?ri(35,65):(mid==='v'?ri(72,80):ri(86,130));
+    e.a=badSet.has('a')?ri(5,9):(mid==='a'?ri(3,4):ri(0,2));
+    e.n=badSet.has('n')?ri(1,2):(mid==='n'?3:ri(4,5));
+    e.bad=[e.v<70,e.a>=5,e.n<=2].filter(Boolean).length>=2;e.obs=e.bad?OBS_BAD[ri(0,3)]:OBS_OK[ri(0,3)];return e;},
+  prog(){mgProg(`<span style="font-size:17px">🗂️ ${Math.min(this.i+1,6)}/6 &nbsp; ✅ ${this.ok}</span>`);},
+  press(d){if(this.end||this.anim||this.i>=this.list.length)return;const e=this.list[this.i],fire=d==='fire',ok=fire===e.bad;this.anim={u:0,fire,ok};
+    if(ok){this.ok++;this.pay+=15;sfx('item');mgMsg(fire?`Decisão certa. ${e.nome} foi desligado(a). 📋`:`Isso! ${e.nome} continua no time. 💪`);}
+    else{sfx('nope');mgMsg(e.bad?`Hmm... ${e.nome} tinha 2+ pontos vermelhos. 😬`:`Ops! ${e.nome} tinha bons resultados. 😬`);}},
+  frame(dt,t){const c=mgBegin();R(c,0,0,MGW,MGH,'#e9edf2');R(c,0,0,MGW,40,'#1f3b73');TX(c,'🗂️ AVALIAÇÃO DA EQUIPE',16,20,14,'#ffffff','700','left');TX(c,'RH · C&A',384,20,12,'#9fb3c8','700','right');
+    if(this.i>=this.list.length)return;const e=this.list[this.i];let dx=0,rot=0;
+    if(this.anim){const A=this.anim;A.u=Math.min(1,A.u+dt*1.6);const k=Math.max(0,A.u-.45)/.55;dx=(A.fire?1:-1)*k*k*460;rot=(A.fire?1:-1)*k*.25;
+      if(A.u>=1){this.anim=null;this.i++;if(this.i>=this.list.length){this.end=true;mgPay(this.pay+(this.ok===6?6:0));}else this.prog();return;}}
+    c.save();c.translate(200+dx,232);c.rotate(rot);
+    RR(c,-176,-176,352,350,16,'#ffffff');c.strokeStyle='#d0d7e2';c.lineWidth=2;c.beginPath();c.roundRect(-176,-176,352,350,16);c.stroke();
+    C(c,-112,-116,40,'#e8eef9');TX(c,e.face,-112,-114,44,'#000');TX(c,e.nome,-60,-132,24,'#1f2a44','700','left');TX(c,'Vendedor(a) · loja C&A',-60,-104,12,'#8a93a6','700','left');
+    const rows=[['🛍️ Vendas (meta)',e.v+'%',e.v<70?'#e63946':e.v<85?'#e9a800':'#2a9d8f',Math.min(1,e.v/130)],['⏰ Atrasos no mês',String(e.a),e.a>=5?'#e63946':e.a>=3?'#e9a800':'#2a9d8f',Math.min(1,e.a/9)],['⭐ Nota dos clientes','★'.repeat(e.n)+'☆'.repeat(5-e.n),e.n<=2?'#e63946':e.n===3?'#e9a800':'#2a9d8f',e.n/5]];
+    rows.forEach((r,k)=>{const y=-50+k*52;TX(c,r[0],-150,y,14,'#3c4660','700','left');TX(c,r[1],150,y,16,r[2],'700','right');RR(c,-150,y+14,300,8,4,'#eef1f5');RR(c,-150,y+14,300*r[3],8,4,r[2]);});
+    RR(c,-150,108,300,46,10,'#f6f7fb');wrapTx(c,'Obs.: '+e.obs,0,131,280,18,13,'#5a6480');
+    if(this.anim&&this.anim.u>.12){const A=this.anim;c.save();c.rotate(-.22);c.globalAlpha=Math.min(1,(A.u-.12)*4);c.strokeStyle=A.fire?'#e63946':'#2a9d8f';c.lineWidth=5;c.strokeRect(-108,-28,216,56);TX(c,A.fire?'DESLIGADO':'MANTIDO',0,2,32,A.fire?'#e63946':'#2a9d8f','700');c.restore();}
+    c.restore();
+    TX(c,'2 ou mais pontos vermelhos = desligar',200,410,12,'#8a93a6','700');
+  }
+};
+
+/* Reunião online */
+const CALLP=[{n:'Gerente Márcia',bg:'#3a506b',look:{skin:'#e8b892',hair:'bun',hc:'#3b2a1a',top:'#1f3b73',legs:'#1f3b73',glasses:true}},
+  {n:'Seu Roberto',bg:'#5c4d7d',look:{skin:'#e8b892',hair:'short',hc:'#8a8a8a',top:'#1f3b73',legs:'#2b2d42',glasses:true}},
+  {n:'Diretora Helena',bg:'#2d6a4f',look:{skin:'#8d5524',hair:'curly',hc:'#1b1b1b',top:'#e63946',legs:'#8d5524'}},
+  {n:'Jorge, fornecedor',bg:'#7f5539',look:{skin:'#d9a07a',hair:'short',hc:'#222',top:'#f4a261',legs:'#2b2d42',beard:'#3b2a1a'}}];
+const CALLQ=[{p:2,q:'{nome}, como foram as vendas da loja esta semana?',a:['Subiram 12%! A vitrine nova ajudou muito. 📈','Sei lá, não olhei. 🤷‍♀️','Hã? Tô sem som aqui...'],ok:0,r:'Excelente resultado! Parabéns para toda a equipe! 👏'},
+  {p:3,q:'Posso entregar as jaquetas só no mês que vem?',a:['Pode mandar quando quiser, tanto faz.','Precisamos ainda esta semana: o estoque está acabando.','Jaqueta? Que jaqueta?'],ok:1,r:'Combinado! Entrego até sexta-feira. 📦'},
+  {p:0,q:'Alguém tem uma ideia para a campanha de Dia das Mães?',a:['Fechar a loja e ir à praia. 🏖️','Vender só meias.','Kits de presente com cartãozinho personalizado! 💐'],ok:2,r:'Amei a ideia! Vamos fazer! 💐'},
+  {p:1,q:'Quem pode cobrir o turno de sábado de manhã?',a:['Eu posso ajudar! 🙋‍♀️','(Finge que a internet caiu) 📶','Sábado não dá, tenho viagem marcada! ✈'],ok:0,r:'Valeu, {nome}! Salvou o sábado! 🙌'}];
+const CALLE=['☕ A cafeteira do escritório começou a apitar!','📞 O telefone da mesa tocou bem alto!','🔨 Começou uma obra barulhenta do lado da loja!','📢 Passou um carro de som na rua!'];
+MINI.call={title:'Reunião online',sub:'Responda bem às perguntas da equipe. Se aparecer um barulho, toque no 🎙️ para mutar rápido! Para falar, desmute.',
+  start(){const qs=CALLQ.slice().sort(()=>Math.random()-.5),es=CALLE.slice().sort(()=>Math.random()-.5);
+    this.seq=[{t:'q',...qs[0]},{t:'e',e:es[0]},{t:'q',...qs[1]},{t:'q',...qs[2]},{t:'e',e:es[1]},{t:'q',...qs[3]}];this.i=-1;this.muted=false;this.pay=0;this.good=0;this.end=false;this.spk=-1;this.text='Entrando na reunião... 💻';this.wait=1.2;this.phase='wait';this.prog();mgCtrl('');mgMsg('Conectando... 📶');},
+  prog(){mgProg(`<span style="font-size:17px">💬 ${Math.max(0,Math.min(this.i+1,6))}/6 &nbsp; ✅ ${this.good}</span>`);},
+  next(){this.i++;if(this.i>=this.seq.length){this.end=true;this.phase='end';mgCtrl('');mgPay(this.pay+8);return;}
+    const s=this.seq[this.i];this.prog();
+    if(s.t==='q'){this.spk=s.p;this.text=fmt(s.q);this.phase='ask';const ord=[0,1,2].sort(()=>Math.random()-.5);
+      mgCtrl(ord.map(k=>`<button data-k="${k}" style="text-align:left;padding:10px 12px">${s.a[k]}</button>`).join(''),1);
+      document.querySelectorAll('#mgCtrl button').forEach(b=>b.onclick=()=>this.answer(+b.dataset.k));mgMsg(this.muted?'Você está no mudo 🔇 Desmute para responder!':'Escolha a melhor resposta 💬');}
+    else{this.spk=-1;this.text=s.e;this.phase='event';this.tl=3.2;mgCtrl('');mgMsg(this.muted?'Você já está no mudo! 👍':'Barulho! Toque no 🎙️ para mutar, rápido!');sfx('nope');
+      if(this.muted){this.phase='wait';this.wait=1.4;this.pay+=12;this.good++;}}},
+  answer(k){if(this.phase!=='ask')return;const s=this.seq[this.i];
+    if(this.muted){sfx('nope');mgMsg('Você está no mudo! 🔇 Toque no microfone para desmutar.');return;}
+    mgCtrl('');if(k===s.ok){this.pay+=16;this.good++;sfx('item');this.text=fmt(s.r);mgMsg('Boa resposta! ✅');}
+    else{sfx('nope');this.text='Hmm... vamos seguir com a pauta, pessoal. 😅';mgMsg('Não foi a melhor resposta... 😬');}
+    this.phase='wait';this.wait=1.8;this.prog();},
+  toggle(){this.muted=!this.muted;tone(this.muted?400:700,.08,0,'sine',.07);
+    if(this.phase==='event'&&this.muted){this.pay+=12;this.good++;mgMsg('Mutado a tempo! 👍');this.text='(Ninguém ouviu nada. Profissional!) 😎';this.phase='wait';this.wait=1.4;this.prog();}
+    else if(this.phase==='ask'&&!this.muted)mgMsg('Microfone ligado 🎙️ Escolha a melhor resposta!');},
+  frame(dt,t){const c=mgBegin();R(c,0,0,MGW,MGH,'#1e2230');R(c,0,0,MGW,30,'#141724');C(c,16,15,5,Math.sin(t*3)>0?'#e63946':'#7a1f2b');TX(c,'Reunião · Equipe C&A',28,15,12,'#ffffff','700','left');
+    const mm=Math.floor(t/60),ss=Math.floor(t%60);TX(c,`${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`,384,15,12,'#9aa3ad','700','right');
+    CALLP.forEach((p,k)=>{const x=8+(k%2)*196,y=36+(k>>1)*124,w=188,h=118,sp=this.spk===k;
+      RR(c,x,y,w,h,10,p.bg);c.save();c.beginPath();c.roundRect(x,y,w,h,10);c.clip();person(c,x+w/2,y+h+30,Object.assign({s:2.1},p.look),t+k,false,'down');c.restore();
+      if(sp){c.strokeStyle='#06d6a0';c.lineWidth=4;c.beginPath();c.roundRect(x+2,y+2,w-4,h-4,9);c.stroke();for(let b=0;b<4;b++){const hb=4+Math.abs(Math.sin(t*12+b*1.3))*12;RR(c,x+w-40+b*7,y+h-12-hb,4,hb,2,'#06d6a0');}}
+      RR(c,x+6,y+h-24,Math.min(170,p.n.length*6.6+14),18,6,'rgba(0,0,0,.45)');TX(c,p.n,x+13,y+h-15,11,'#ffffff','700','left');});
+    const look={skin:CONFIG.pele,hair:'pony',hc:CONFIG.cabelo,top:CONFIG.roupa,sport:true,legs:CONFIG.legging,stripe:CONFIG.detalhe,accent:CONFIG.detalhe,scrunchie:'#ffffff',s:1.5,badge:true};
+    RR(c,8,288,150,74,10,'#33415c');c.save();c.beginPath();c.roundRect(8,288,150,74,10);c.clip();person(c,83,288+74+24,look,t,false,'down');c.restore();RR(c,14,342,54,16,5,'rgba(0,0,0,.45)');TX(c,'Você',22,350,11,'#fff','700','left');
+    const mx=200,my=325;C(c,mx,my,26,this.muted?'#e63946':'#2a9d8f');TX(c,this.muted?'🔇':'🎙️',mx,my+1,22,'#000');if(this.phase==='event'){const pu=1+Math.sin(t*10)*.12;c.strokeStyle='#ffd166';c.lineWidth=3;c.beginPath();c.arc(mx,my,32*pu,0,TAU);c.stroke();}
+    TX(c,this.muted?'No mudo':'Microfone ligado',mx,my+38,10,'#9aa3ad','700');
+    RR(c,240,290,152,72,10,'#2a3042');wrapTx(c,this.spk>=0?CALLP[this.spk].n:(this.phase==='event'?'⚠️ Atenção!':'Reunião'),316,304,140,14,11,'#06d6a0');
+    RR(c,8,370,384,44,10,'#ffffff');wrapTx(c,this.text,200,384,368,16,13,'#1f2a44');
+    if(this.phase==='event'){this.tl-=dt;RR(c,248,330,136,8,4,'rgba(255,255,255,.15)');RR(c,248,330,136*Math.max(0,this.tl/3.2),8,4,'#e63946');
+      if(this.tl<=0){this.phase='wait';this.wait=1.6;this.text='Diretora Helena: "Que barulho é esse?" 😂';mgMsg('Todo mundo ouviu o barulho! 😅');}}
+    if(this.phase==='wait'){this.wait-=dt;if(this.wait<=0)this.next();}
+  },
+  down(x,y){if(this.end)return;if(Math.hypot(x-200,y-325)<36||(x<160&&y>286&&y<364))this.toggle();}
 };
 
 /* ---------- music ---------- */
