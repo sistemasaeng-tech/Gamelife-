@@ -1449,8 +1449,9 @@ function bubble(c,x,y,t,kind,faded){
 function drawPlayer(c,t){
   const f=player.face,sx=f==='left'?16:f==='right'?-16:15;
   const look={skin:CONFIG.pele,hair:'pony',hc:CONFIG.cabelo,top:CONFIG.roupa,sport:true,legs:CONFIG.legging||'#7a7f86',stripe:CONFIG.detalhe||'#8f949a',accent:CONFIG.detalhe||'#8f949a',scrunchie:'#ffffff',shoes:'#ffffff',s:1.05,badge:!!(state.scene&&state.scene.id==='cea')};
-  if(f==='up'){suitcase(c,player.x+sx,player.y-1);person(c,player.x,player.y,look,player.walkT,player.moving,f);}
-  else{person(c,player.x,player.y,look,player.walkT,player.moving,f);suitcase(c,player.x+sx,player.y-1);}
+  const sid=state.scene&&state.scene.id,bag=sid!=='casa'&&sid!=='cea';
+  if(f==='up'){if(bag)suitcase(c,player.x+sx,player.y-1);person(c,player.x,player.y,look,player.walkT,player.moving,f);}
+  else{person(c,player.x,player.y,look,player.walkT,player.moving,f);if(bag)suitcase(c,player.x+sx,player.y-1);}
 }
 function drawNPC(c,n,t){const k=n.look;if(k.kind==='cat')return cat(c,n.x,n.y,k.col,t);if(k.kind==='bird')return bird(c,n.x,n.y,k.col,t,k.beak);person(c,n.x,n.y,k,t+n.name.length*.37,!!n.moving,n.face||'down');}
 
