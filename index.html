@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Abrir Buscar</title>
+<style>
+  :root {
+    --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93;
+    --accent: #34c759;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000000; --card: #1c1c1e; --text: #f2f2f7; --muted: #8e8e93; --accent: #30d158; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    padding: 24px 16px;
+  }
+  .card {
+    width: 100%; max-width: 420px; background: var(--card);
+    border-radius: 22px; padding: 32px 20px; text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+  }
+  .icon {
+    width: 84px; height: 84px; margin: 0 auto 16px; border-radius: 20px;
+    background: linear-gradient(180deg, #5ee07a, #2fb84f);
+    display: flex; align-items: center; justify-content: center;
+  }
+  h1 { font-size: 22px; margin: 0 0 22px; }
+  button {
+    width: 100%; font-size: 18px; font-weight: 600; padding: 16px;
+    border: 0; border-radius: 14px; background: var(--accent); color: #fff;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  button:active { transform: scale(.98); opacity: .9; }
+  p { color: var(--muted); font-size: 13px; margin: 14px 0 0; min-height: 1em; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon">
+      <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="#fff"/></svg>
+    </div>
+    <h1>Buscar</h1>
+    <button id="abrir">Abrir o app Buscar</button>
+    <p id="msg"></p>
+  </main>
+
+<script>
+  document.getElementById('abrir').addEventListener('click', () => {
+    // Esquema de URL do app Buscar (Find My) no iOS 13 ou mais recente
+    window.location.href = 'findmy://';
+
+    // Se depois de 2s a página ainda estiver visível, o app não abriu
+    setTimeout(() => {
+      if (!document.hidden) {
+        document.getElementById('msg').textContent =
+          'Não abriu? Este botão só funciona no iPhone/iPad, pelo Safari.';
+      }
+    }, 2000);
+  });
+</script>
+</body>
+</html>
