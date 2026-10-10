@@ -28,7 +28,7 @@ button{font-family:Fredoka,Nunito,system-ui,sans-serif;cursor:pointer}
 #keys .k.on{transform:scale(1.12) rotate(-12deg)}
 #bottomBar{position:fixed;left:0;right:0;bottom:0;padding:0 12px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none;z-index:5}
 .chip{pointer-events:auto;border:0;background:rgba(255,250,240,.95);border-radius:999px;padding:11px 16px;font-weight:600;font-size:15px;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.2)}
-#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 76px);transform:translateX(-50%);background:rgba(31,42,68,.92);color:#fff;padding:10px 16px;border-radius:999px;font-weight:800;font-size:14px;z-index:6;max-width:92vw;text-align:center;transition:opacity .4s;pointer-events:none}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 168px);transform:translateX(-50%);background:rgba(31,42,68,.92);color:#fff;padding:10px 16px;border-radius:999px;font-weight:800;font-size:14px;z-index:6;max-width:92vw;text-align:center;transition:opacity .4s;pointer-events:none}
 
 /* Dialog */
 #dlg{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:560px;margin:0 auto;background:var(--cream);border-radius:22px;padding:18px 18px 14px;box-shadow:0 10px 40px rgba(0,0,0,.35);z-index:8;border:3px solid #fff;animation:dlgIn .25s ease-out}
@@ -162,6 +162,20 @@ button{font-family:Fredoka,Nunito,system-ui,sans-serif;cursor:pointer}
 .stamp2 .lt{font-family:Fredoka,Nunito,sans-serif;font-size:18px}
 .ppbag{font-weight:800;font-size:14px;color:#5a6480;text-align:center;margin-bottom:12px}
 .kpsub{position:relative;font-family:Fredoka,Nunito,sans-serif;font-weight:600;font-size:22px;color:#fff;margin-top:6px;background:rgba(0,0,0,.25);padding:4px 14px;border-radius:999px;animation:pop .6s .7s both}
+
+#joy{pointer-events:auto;position:relative;width:132px;height:132px;border-radius:50%;background:rgba(255,250,240,.32);border:3px solid rgba(255,255,255,.85);box-shadow:0 6px 20px rgba(0,0,0,.18),inset 0 0 22px rgba(255,255,255,.3);touch-action:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);flex:none}
+#joy i{position:absolute;color:rgba(255,255,255,.95);font-style:normal;font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none}
+#joyKnob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,#ffc2d4 70%,#ff8fb0);box-shadow:0 5px 12px rgba(0,0,0,.3);pointer-events:none}
+#joy.on{background:rgba(255,250,240,.45)}
+#btnGrid{pointer-events:auto;display:grid;grid-template-columns:repeat(2,62px);gap:8px;justify-content:end}
+.rb{width:62px;height:62px;border:0;border-radius:18px;background:rgba(255,250,240,.95);box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink);padding:0}
+.rb span{font-size:23px;line-height:1}
+.rb small{font-size:9.5px;font-weight:800;font-family:Nunito,system-ui,sans-serif}
+.rb:active{transform:scale(.94)}
+#money{font-size:14px;padding:6px 11px;background:#fff6d6}
+#money.bump{animation:bumpA .6s}
+@keyframes bumpA{40%{transform:scale(1.25);background:#ffe08a}}
+#fVeh{position:absolute;left:0;top:0;font-size:42px;line-height:1}
 </style>
 </head>
 <body>
@@ -169,12 +183,16 @@ button{font-family:Fredoka,Nunito,system-ui,sans-serif;cursor:pointer}
 
 <div id="hud" class="hidden">
   <div id="hudCol"><div class="pill" id="loc">✈ Aeroporto</div><div class="pill" id="obj"></div></div>
-  <div id="rightCol"><div class="pill" id="keys"></div><div class="pill hidden" id="bag"></div></div>
+  <div id="rightCol"><div class="pill" id="keys"></div><div class="pill" id="money">💰 R$ 0</div><div class="pill hidden" id="bag"></div></div>
 </div>
 <div id="bottomBar" class="hidden">
-  <button class="chip" id="btnAirport">✈ Aeroporto</button>
-  <button class="chip" id="btnPass">🛂 Passaporte</button>
-  <button class="chip" id="btnSound" aria-label="Som">🔊</button>
+  <div id="joy"><i style="left:50%;top:6px;transform:translateX(-50%)">▲</i><i style="left:50%;bottom:6px;transform:translateX(-50%)">▼</i><i style="left:8px;top:50%;transform:translateY(-50%)">◀</i><i style="right:8px;top:50%;transform:translateY(-50%)">▶</i><div id="joyKnob"></div></div>
+  <div id="btnGrid">
+    <button class="rb" id="btnAirport"><span>✈️</span><small>Aeroporto</small></button>
+    <button class="rb" id="btnWork"><span>💼</span><small>Trabalhar</small></button>
+    <button class="rb" id="btnPass"><span>🛂</span><small>Passaporte</small></button>
+    <button class="rb" id="btnSound" aria-label="Som"><span>🔊</span><small>Som</small></button>
+  </div>
 </div>
 <div id="toast" class="hidden"></div>
 
@@ -223,10 +241,11 @@ button{font-family:Fredoka,Nunito,system-ui,sans-serif;cursor:pointer}
     <div class="ftitle" id="fTitle">Voando para Roma</div>
     <div class="froute">
       <svg class="path" viewBox="0 0 300 120" preserveAspectRatio="none"><path id="fpath" d="M18,100 Q150,-20 282,100" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/></svg>
+      <div id="fVeh" class="hidden"></div>
       <svg id="fPlane" viewBox="0 0 24 24"><path fill="#fff" d="M21 12c0-.8-.7-1.5-1.5-1.5H14L9 3H7l2.5 7.5H5L3.5 8.5H2l1 3.5-1 3.5h1.5L5 13.5h4.5L7 21h2l5-7.5h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg>
     </div>
     <div class="fsub" id="fSub">🇮🇹</div>
-    <div class="fdots">APERTEM OS CINTOS</div>
+    <div class="fdots" id="fDots">APERTEM OS CINTOS</div>
   </div>
 </div>
 
@@ -314,7 +333,8 @@ const CONFIG = {
   nome: 'Giselle',
   pele: '#f2c6a0',
   cabelo: '#4b2e20',
-  roupa: '#ff6b81',
+  roupa: '#ff4f8b',          // top esportivo
+  legging: '#2b2d42',        // legging de corrida
   mensagemFinal: 'Você deu a volta ao mundo, conversou com gente de todo canto e conquistou as 5 chaves! Mas o tesouro de verdade não ficou no cofre... ele está aqui pertinho, esperando por você.',
   assinatura: 'Com todo o meu amor, Lucas ❤',
   linkBuscar: 'findmy://',
@@ -363,20 +383,25 @@ function person(c,x,y,o,t,moving,face){
   RR(c,-6,-15-Math.max(0,l1),5,15,2,lc);RR(c,1,-15-Math.max(0,-l1),5,15,2,lc);
   E(c,-3.5,-1-Math.max(0,l1),3.6,2.2,o.shoes||'#2d2d2d');E(c,3.5,-1-Math.max(0,-l1),3.6,2.2,o.shoes||'#2d2d2d');
   if(o.acc==='skates'){R(c,-8,0,7,1.5,'#555');R(c,1,0,7,1.5,'#555');}
+  if(o.sport){R(c,-6.5,-2.2-Math.max(0,l1),6,1.4,o.top);R(c,.5,-2.2-Math.max(0,-l1),6,1.4,o.top);}
   if(o.hair==='long'&&face!=='up')RR(c,-11.5,-51,23,31,9,o.hc);
+  if(o.hair==='pony'&&face!=='up')pony(c,o,face,t,moving);
   if(o.dress){c.fillStyle=o.top;c.beginPath();c.moveTo(-7,-31);c.lineTo(7,-31);c.lineTo(11,-12);c.quadraticCurveTo(0,-9,-11,-12);c.closePath();c.fill();}
+  else if(o.sport){RR(c,-8,-31,16,11,4,o.top);R(c,-8,-27,16,1.6,'rgba(255,255,255,.75)');R(c,-6.5,-20.5,13,3,o.skin);RR(c,-8,-18,16,6,3,o.legs);R(c,-8,-15,16,1.2,o.top);}
   else RR(c,-8,-31,16,18,5,o.top);
   if(o.stripes){for(let i=0;i<3;i++)R(c,-8,-27+i*5,16,2,o.stripes);}
   if(o.acc==='apron')RR(c,-6,-27,12,15,3,'#fbfbfb');
   if(o.acc==='scarf')P(c,[-6,-31,6,-31,0,-24],'#e63946');
   const a=ph*2.5;
-  RR(c,-12,-30+a,5,12,2.5,o.top);RR(c,7,-30-a,5,12,2.5,o.top);
+  const ac=o.sport?o.skin:o.top;RR(c,-12,-30+a,5,12,2.5,ac);RR(c,7,-30-a,5,12,2.5,ac);if(o.sport){R(c,-12,-22+a,5,2.2,'#222');R(c,-12,-31+a,5,2,o.top);R(c,7,-31-a,5,2,o.top);}
+  if(o.badge){c.strokeStyle='#2563c9';c.lineWidth=1.2;c.beginPath();c.moveTo(-4,-31);c.lineTo(2,-25);c.moveTo(4,-31);c.lineTo(3,-25);c.stroke();RR(c,-1,-26,7,8,1.5,'#ffffff');R(c,-1,-26,7,2.4,'#2563c9');}
   C(c,-9.5,-17+a,2.8,o.skin);C(c,9.5,-17-a,2.8,o.skin);
   if(o.acc==='camera'){RR(c,-5,-25,10,7,2,'#2b2d42');C(c,0,-21.5,2.3,'#8d99ae');}
   if(o.acc==='sax'){c.strokeStyle='#e9b949';c.lineWidth=3.5;c.lineCap='round';c.beginPath();c.moveTo(-2,-34);c.quadraticCurveTo(6,-24,2,-14);c.quadraticCurveTo(0,-10,-5,-14);c.stroke();}
   if(o.acc==='basket'){RR(c,8,-20,12,8,3,'#b5835a');c.strokeStyle='#8a5e3a';c.lineWidth=1.5;c.beginPath();c.arc(14,-20,5,Math.PI,0);c.stroke();}
   C(c,0,-41,11,o.skin);
   hairFront(c,o,face);
+  if(o.hair==='pony'&&face==='up')pony(c,o,face,t,moving);
   if(face!=='up'){
     const fx=face==='left'?-3:face==='right'?3:0;
     if(o.glasses){RR(c,-9+fx,-43,7,5,2,'#222');RR(c,2+fx,-43,7,5,2,'#222');R(c,-2+fx,-42,4,1.2,'#222');}
@@ -389,10 +414,17 @@ function person(c,x,y,o,t,moving,face){
   hat(c,o,face);
   c.restore();
 }
+function pony(c,o,face,t,moving){const h=o.hc,sw=Math.sin(NOW*2.4)*1.2+(moving?Math.sin(t*13)*3.5:0);
+  let ax=0,ay=-51,dir=0,tipy=-25;
+  if(face==='left'){ax=8;ay=-50;dir=1;}else if(face==='right'){ax=-8;ay=-50;dir=-1;}else if(face==='down'){ax=4;ay=-54;dir=.8;tipy=-31;}
+  const tipx=ax+dir*10+sw,cx=ax+dir*15+sw*.5,cy=ay+5;
+  c.fillStyle=h;c.beginPath();c.moveTo(ax-4.5,ay);c.quadraticCurveTo(cx-6,cy,tipx,tipy);c.quadraticCurveTo(cx+6,cy,ax+4.5,ay);c.fill();
+  c.fillStyle=shade(h,.18);c.beginPath();c.moveTo(ax-1,ay+2);c.quadraticCurveTo(cx-2,cy+2,tipx,tipy);c.quadraticCurveTo(cx,cy+1,ax+1.5,ay+2);c.fill();
+  E(c,ax,ay,4.6,3.2,o.top||'#ff4f8b');E(c,ax-1,ay-.8,1.6,1,'rgba(255,255,255,.6)');}
 function hairFront(c,o,face){
   const h=o.hc;
   switch(o.hair){
-    case'long':case'short':case'bun':case'curly':
+    case'long':case'short':case'bun':case'curly':case'pony':
       if(face==='up')RR(c,-12,-53,24,o.hair==='long'?32:20,10,h);
       else{c.fillStyle=h;c.beginPath();c.arc(0,-42,12.2,Math.PI*1.02,Math.PI*1.98);c.quadraticCurveTo(6,-46,0,-45);c.quadraticCurveTo(-6,-46,-12.1,-41);c.fill();
         if(o.hair==='long'){RR(c,-12.5,-46,5,18,3,h);RR(c,7.5,-46,5,18,3,h);}}
@@ -440,19 +472,19 @@ function jet(g,x,y,s,tail){g.save();g.translate(x,y);g.scale(s,s);RR(g,-80,-12,1
 
 /* ========================================================= DATA */
 const CITIES=[
-  {id:'roma',name:'Roma',short:'Roma',country:'Itália',flag:'🇮🇹',color:'#e07b39',gate:1,flight:'GS101',pc:['#f4b183','#c8562a'],
+  {id:'roma',name:'Roma',short:'Roma',country:'Itália',flag:'🇮🇹',color:'#e07b39',gate:1,flight:'GS101',price:280,pc:['#f4b183','#c8562a'],
    welcome:'Ciao! A chave de Roma está escondida em algum canto desta praça. Converse com os romanos para descobrir onde.',
    found:'As moedas tocaram a água, a fonte inteira brilhou... e a chave de Roma subiu até a borda!'},
-  {id:'ny',name:'Nova York',short:'Nova York',country:'Estados Unidos',flag:'🇺🇸',color:'#e9a800',gate:2,flight:'GS202',pc:['#ffd95a','#2f5d8a'],
+  {id:'ny',name:'Nova York',short:'Nova York',country:'Estados Unidos',flag:'🇺🇸',color:'#e9a800',gate:2,flight:'GS202',price:320,pc:['#ffd95a','#2f5d8a'],
    welcome:'A cidade que nunca dorme! Alguém por aqui viu onde a chave foi parar. Pergunte por aí!',
    found:'O Sal tira a chave de entre a mostarda e o ketchup e te entrega com uma piscadinha. 🌭'},
-  {id:'marrakech',name:'Marrakech',short:'Marrocos',country:'Marrocos',flag:'🇲🇦',color:'#3a56d4',gate:3,flight:'GS303',pc:['#f6c28b','#3a56d4'],
+  {id:'marrakech',name:'Marrakech',short:'Marrocos',country:'Marrocos',flag:'🇲🇦',color:'#3a56d4',gate:3,flight:'GS303',price:240,pc:['#f6c28b','#3a56d4'],
    welcome:'Marhaba! A praça Jemaa el-Fna está cheia de cores e aromas. A chave está em algum lugar do souk.',
    found:'As lanternas se acendem todas juntas, e lá no meio, pendurada, brilha a chave do Marrocos!'},
-  {id:'porto',name:'Porto',short:'Porto',country:'Portugal',flag:'🇵🇹',color:'#8e2c48',gate:4,flight:'GS404',pc:['#9ec5ea','#8e2c48'],
+  {id:'porto',name:'Porto',short:'Porto',country:'Portugal',flag:'🇵🇹',color:'#8e2c48',gate:4,flight:'GS404',price:200,pc:['#9ec5ea','#8e2c48'],
    welcome:'Olá! A Ribeira do Porto te espera, à beira do rio Douro. Pergunte aos tripeiros onde está a chave!',
    found:'O Sr. Zé tira o chapéu: "Ganhaste, menina!" A chave de Portugal é tua.'},
-  {id:'miami',name:'Miami',short:'Miami',country:'Estados Unidos',flag:'🇺🇸',color:'#f2549a',gate:5,flight:'GS505',pc:['#ffc2dc','#1c9fc4'],
+  {id:'miami',name:'Miami',short:'Miami',country:'Estados Unidos',flag:'🇺🇸',color:'#f2549a',gate:5,flight:'GS505',price:280,pc:['#ffc2dc','#1c9fc4'],
    welcome:'Sol, praia e Ocean Drive! A última chave está escondida em algum lugar de Miami Beach.',
    found:'O mar devolveu a chave direitinho dentro do seu balde! 🪣'}
 ];
@@ -494,7 +526,7 @@ function departures(c,t){
   R(c,x+10,y+26,w-20,1,'#2b3550');
   CITIES.forEach((ct,i)=>{const ry=y+40+i*22,done=state.keys[ct.id],blink=Math.sin(t*4+i)>0;
     TX(c,ct.flight,x+14,ry,11,'#cfd5e0','600','left');TX(c,ct.short.toUpperCase(),x+72,ry,12,'#fff','700','left');TX(c,'P'+ct.gate,x+212,ry,11,'#cfd5e0','600','left');
-    TX(c,done?'CHAVE ✓':'EMBARQUE',x+w-14,ry,11,done?'#06d6a0':(blink?'#ffd166':'#9b7a26'),'700','right');});
+    TX(c,done?'CHAVE ✓':'R$ '+ct.price,x+w-14,ry,11,done?'#06d6a0':(state.money>=ct.price?(blink?'#ffd166':'#9b7a26'):'#ff8fa3'),'700','right');});
 }
 BUILD_airport=function(){
   const S={id:'airport',w:900,h:1000,bg:'#dfe3e7',top:'#eef1f4',bot:'#dce0e4',spawn:[450,940],seed:11};
@@ -524,7 +556,8 @@ BUILD_airport=function(){
   [[40,350],[860,350],[40,975],[860,975],[300,640],[600,640]].forEach(([x,y])=>S.objects.push(O(x,y,28,10,(c,x,y)=>plant(c,x,y))));
   S.objects.push(O(450,664,118,26,(c,x,y,t)=>chest(c,x,y,t)));
   S.npcs=[{id:'bia',name:'Bia, comissária',color:'#1d3557',x:585,y:905,face:'left',look:{skin:'#f3cfb0',hair:'bun',hc:'#5a3825',top:'#1d3557',dress:true,legs:'#f3cfb0',hat:'stew',hatc:'#1d3557',acc:'scarf',shoes:'#1d3557'},
-    lines:()=>{const n=countKeys();
+    lines:()=>{const n=countKeys(),need=cheapest();
+      if(n<5&&need&&state.money<need.price)return[`Olá, {nome}! Para embarcar você precisa comprar a passagem. A mais barata agora é ${need.name}: R$ ${need.price}. ✈`,`Você tem R$ ${state.money}. Toque em 💼 Trabalhar e ganhe um dinheirinho na C&A!`];
       if(n===5)return['Uau, as 5 chaves! 🎉','Corra até o cofre do tesouro, ali no centro do saguão!'];
       if(n===0)return['Olá, {nome}! Escolha um portão para começar. ✈','Em cada cidade, siga o 🎯 objetivo lá em cima. Quem tem novidade para você mostra um ❗ amarelo.'];
       return[`Você já tem ${n} de 5 chaves. Está indo muito bem!`,'Escolha o próximo portão. Boa viagem! ✈'];}}];
@@ -1093,17 +1126,99 @@ BUILD_miami=function(){
   return S;
 };
 
+
+/* ========================================================= C&A (trabalho) */
+const WORK={id:'cea',name:'C&A',short:'C&A',color:'#2563c9'};
+const GCOL=['#e63946','#3a86ff','#2a9d8f','#f4c20d','#ff6fae','#222222','#ffffff','#9b5de5'];
+function garment(c,type,x,y,s,col){c.save();c.translate(x,y);c.scale(s,s);const dk=shade(col==='#ffffff'?'#dddddd':col,-.2);
+  if(type==='tee')P(c,[-22,-28,-40,-14,-32,-2,-22,-8,-22,30,22,30,22,-8,32,-2,40,-14,22,-28,8,-28,0,-22,-8,-28],col);
+  else if(type==='dress')P(c,[-10,-30,-14,-10,-30,30,30,30,14,-10,10,-30,4,-26,-4,-26],col);
+  else if(type==='pants')P(c,[-20,-30,20,-30,22,30,6,30,0,-6,-6,30,-22,30],col);
+  else P(c,[-22,-28,-42,-10,-38,26,-28,26,-22,0,-22,30,22,30,22,0,28,26,38,26,42,-10,22,-28,8,-28,0,-18,-8,-28],col);
+  c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=1.5;c.stroke();
+  if(type==='dress')R(c,-14,-12,28,4,dk);if(type==='pants')R(c,-20,-30,40,5,dk);if(type==='jacket')R(c,-1,-18,2,48,dk);
+  c.restore();}
+function hanger(c,x,y){c.strokeStyle='#8d99ae';c.lineWidth=2;c.beginPath();c.arc(x,y-6,4,Math.PI,Math.PI*2.2);c.moveTo(x,y-2);c.lineTo(x-14,y+6);c.lineTo(x+14,y+6);c.closePath();c.stroke();}
+function roundRack(c,x,y,t,seed){SH(c,x,y,58,12);R(c,x-2,y-74,4,72,'#9aa3ad');E(c,x,y-2,18,5,'#9aa3ad');
+  const pts=[];for(let i=0;i<12;i++){const a=i/12*TAU;pts.push([x+Math.cos(a)*48,y-80+Math.sin(a)*12,a,GCOL[(i*3+seed)%GCOL.length]]);}
+  pts.sort((a,b)=>a[1]-b[1]);
+  for(const[gx,gy,a,col]of pts){const back=Math.sin(a)<0;RR(c,gx-8,gy,16,40,5,back?shade(col==='#ffffff'?'#e6e6e6':col,-.25):col);if(col==='#ffffff'&&!back){c.strokeStyle='rgba(0,0,0,.12)';c.lineWidth=1;c.strokeRect(gx-8,gy,16,40);}}
+  c.strokeStyle='#c3cad3';c.lineWidth=3;c.beginPath();c.ellipse(x,y-80,48,12,0,0,TAU);c.stroke();}
+function fittingRooms(c,x,y,t){SH(c,x,y,110,12);
+  R(c,x-100,y-190,200,190,'#e9e2d8');R(c,x-104,y-198,208,12,'#cfc5b8');
+  for(let i=0;i<3;i++){const bx=x-96+i*64;R(c,bx,y-178,60,178,'#f7f3ee');const col=['#c9184a','#3a86ff','#2a9d8f'][i];const sw=Math.sin(t*1.2+i)*1.5;
+    for(let k=0;k<5;k++)RR(c,bx+2+k*11.5+sw,y-170,12,166,6,k%2?col:shade(col,-.15));R(c,bx,y-176,60,4,'#9aa3ad');}
+  RR(c,x-70,y-232,140,30,8,'#1f3b73');TX(c,'PROVADORES',x,y-217,14,'#fff');R(c,x-1,y-204,2,8,'#999');}
+function cashier(c,x,y,t){SH(c,x,y,130,14);
+  RR(c,x-122,y-62,244,62,8,'#ffffff');R(c,x-122,y-62,244,10,'#d9dee4');R(c,x-122,y-24,244,5,'#2563c9');
+  RR(c,x+38,y-104,50,36,5,'#2d3436');R(c,x+42,y-100,42,26,'#8ecae6');TX(c,'R$',x+63,y-87,11,'#1d3557');R(c,x+60,y-68,6,8,'#555');
+  RR(c,x+2,y-80,16,22,3,'#222');R(c,x+5,y-77,10,7,Math.sin(t*3)>0?'#7bdff2':'#5ab8cc');
+  RR(c,x-104,y-94,30,34,3,'#f1e3c6');R(c,x-104,y-82,30,3,'#2563c9');RR(c,x-66,y-90,26,30,3,'#ffffff');R(c,x-66,y-80,26,3,'#e63946');
+  R(c,x-1,y-190,2,60,'#999');RR(c,x-46,y-216,92,30,8,'#2563c9');TX(c,'CAIXA',x,y-201,15,'#fff');}
+function foldTable(c,x,y){SH(c,x,y,104,12);RR(c,x-96,y-46,192,14,4,'#c49a6c');R(c,x-90,y-32,8,32,'#8b5e34');R(c,x+82,y-32,8,32,'#8b5e34');
+  const cols=['#e63946','#3a86ff','#ffffff','#2a9d8f','#f4c20d','#ff6fae'];
+  for(let s=0;s<5;s++){const sx=x-80+s*36;for(let k=0;k<3+(s%3);k++){RR(c,sx,y-54-k*7,30,7,2,cols[(s*2+k)%6]);c.strokeStyle='rgba(0,0,0,.12)';c.lineWidth=1;c.strokeRect(sx,y-54-k*7,30,7);}}}
+function restockRack(c,x,y){SH(c,x,y,82,10);R(c,x-70,y-96,4,90,'#7d8794');R(c,x+66,y-96,4,90,'#7d8794');R(c,x-72,y-98,144,4,'#7d8794');
+  for(let i=0;i<8;i++){const gx=x-58+i*16;R(c,gx-.5,y-96,1,6,'#8d99ae');RR(c,gx-7,y-90,14,40,4,GCOL[(i*5)%GCOL.length]);}
+  C(c,x-62,y-4,5,'#333');C(c,x+64,y-4,5,'#333');
+  for(let i=0;i<2;i++){RR(c,x-56+i*58,y-40,50,34,3,'#c69c6d');R(c,x-56+i*58,y-26,50,4,'#a07a50');}
+  RR(c,x-50,y-130,100,26,8,'#f4c20d');TX(c,'REPOSIÇÃO',x,y-117,12,'#1f2a44');}
+function mannequin(c,x,y,col){SH(c,x,y,18,5);R(c,x-1.5,y-36,3,36,'#9aa3ad');E(c,x,y-2,12,4,'#9aa3ad');
+  c.fillStyle=col;c.beginPath();c.moveTo(x-12,y-76);c.lineTo(x+12,y-76);c.lineTo(x+18,y-38);c.quadraticCurveTo(x,y-34,x-18,y-38);c.closePath();c.fill();
+  E(c,x,y-82,9,7,'#e9e2d8');C(c,x,y-96,8,'#e9e2d8');}
+function cplant(c,x,y){SH(c,x,y,18,5);for(let i=0;i<7;i++)LEAF(c,x,y-22,-Math.PI/2+(i-3)*.38,32,6,i%2?'#2d6a4f':'#40916c');RR(c,x-14,y-24,28,24,5,'#ffffff');}
+BUILD_cea=function(){
+  const S={id:'cea',w:900,h:1000,bg:'#efe8de',top:'#e9e2d8',bot:'#ebe3d7',spawn:[450,935],seed:77};
+  S.ground=(g,r)=>{
+    R(g,0,0,900,1000,'#efe8de');
+    for(let y=250,j=0;y<1000;y+=50,j++)for(let x=0,i=0;x<900;x+=50,i++)R(g,x,y,50,50,(i+j)%2?'#f3ede4':'#ebe3d7');
+    R(g,0,0,900,250,'#f8f4ef');R(g,0,236,900,14,'#d8cfc3');R(g,0,0,900,62,'#e9e2d8');
+    RR(g,380,10,140,44,12,'#ffffff');g.strokeStyle='#d8cfc3';g.lineWidth=2;g.strokeRect(380,10,140,44);TX(g,'C&A',450,33,26,'#1f2a44','700');
+    const secs=[[30,'FEMININO'],[320,'MASCULINO'],[610,'INFANTIL']];
+    for(const[sx,label]of secs){RR(g,sx,74,260,150,8,'#efe6da');TX(g,label,sx+130,90,12,'#8a7a66','700');
+      for(let k=0;k<2;k++){R(g,sx+12,108+k*58,236,3,'#b8c0c8');for(let i=0;i<13;i++){const col=GCOL[(i*7+k*3+sx)%GCOL.length];R(g,sx+20+i*18,108+k*58,1,6,'#8d99ae');RR(g,sx+14+i*18,113+k*58,13,40,4,col);if(col==='#ffffff'){g.strokeStyle='rgba(0,0,0,.12)';g.lineWidth=1;g.strokeRect(sx+14+i*18,113+k*58,13,40);}}}}
+    RR(g,375,560,150,420,0,'rgba(37,99,201,.10)');
+    R(g,0,986,900,14,'#cfc5b8');RR(g,390,955,120,26,6,'#8a7a66');TX(g,'BEM-VINDA',450,968,11,'#f3ede4','700');
+    for(const dx of[350,550]){R(g,dx-3,930,6,56,'#b8c0c8');R(g,dx-8,930,16,6,'#9aa3ad');}
+  };
+  S.blocks=[{x:0,y:0,w:900,h:258}];
+  S.objects=[O(130,470,206,190,fittingRooms),O(450,430,196,46,foldTable),O(740,470,248,64,cashier),
+    O(300,690,110,26,(c,x,y,t)=>roundRack(c,x,y,t,1)),O(600,690,110,26,(c,x,y,t)=>roundRack(c,x,y,t,4)),
+    O(170,780,150,30,restockRack),O(80,930,30,12,(c,x,y)=>mannequin(c,x,y,'#ff6fae')),O(820,930,30,12,(c,x,y)=>mannequin(c,x,y,'#3a86ff')),
+    O(40,300,26,10,(c,x,y)=>cplant(c,x,y)),O(865,300,26,10,(c,x,y)=>cplant(c,x,y)),O(860,700,26,10,(c,x,y)=>cplant(c,x,y))];
+  const marcia={name:'Gerente Márcia',color:WORK.color,x:450,y:600,look:{skin:'#e8b892',hair:'bun',hc:'#3b2a1a',top:'#1f3b73',legs:'#1f3b73',glasses:true,badge:true},
+    talk:()=>{const need=cheapest(),m=state.money;
+      if(need&&m>=need.price)return{lines:[`Uau, R$ ${m} no bolso! Já dá para a passagem para ${need.name}. ✈`,'Pode ir para o aeroporto, eu cubro o seu turno! 😉'],buttons:[{label:'✈ Ir ao aeroporto',main:true,fn:goAirport},{label:'Trabalhar mais'}]};
+      return{lines:['Oi, {nome}! Que bom que chegou, a loja está lotada hoje! 🛍️','As tarefas têm o selo R$: caixa, mesa de dobrar, arara de reposição e provadores. Cada uma paga um valor.',need?`A passagem mais barata que falta é ${need.name}: R$ ${need.price}. Você tem R$ ${m}. Bora trabalhar! 💪`:'Você já conseguiu todas as chaves! Pode ir quando quiser.']};}};
+  S.npcs=[marcia,
+    {name:'Júnior, colega',x:585,y:445,face:'left',look:{skin:'#c68a5e',hair:'short',hc:'#1d1d1d',top:'#1f3b73',legs:'#2b2d42',badge:true},
+     lines:['E aí, {nome}! Dobrar camiseta é comigo mesmo... mas hoje tem pilha demais! 😅','Dica: no caixa, confira bem o troco. Os clientes conferem tudo!']},
+    {name:'Cliente com sacolas',x:250,y:600,route:[[250,600],[650,600],[700,860],[250,870]],speed:34,look:{skin:'#f3cfaf',hair:'long',hc:'#8a4b2a',top:'#ffb703',legs:'#3d5a80',acc:'basket'},
+     lines:['Vim só olhar... e já estou com três sacolas! 🛍️']},
+    {name:'Cliente na fila',x:820,y:545,face:'left',look:{skin:'#8d5524',hair:'curly',hc:'#1b1b1b',top:'#90be6d',legs:'#264653'},
+     lines:['Estou esperando para pagar. O caixa está precisando de ajuda! 💳']}
+  ];
+  const job=(title,desc,pay,id)=>({lines:[`💼 ${title}`,desc,`Paga até R$ ${pay}.`],buttons:[{label:'Começar tarefa 💪',main:true,fn:()=>startMG(id)},{label:'Agora não'}]});
+  S.spots=[
+    {label:'Caixa',work:true,x:740,y:420,r:96,bx:740,by:300,px:740,py:515,on:()=>job('Caixa','Passe os produtos no leitor e dê o troco certinho para 3 clientes.',96,'caixa')},
+    {label:'Mesa de dobrar',work:true,x:450,y:400,r:80,bx:450,by:330,px:450,py:475,on:()=>job('Mesa de dobrar','Dobre 4 camisetas seguindo as setas, antes do tempo acabar.',90,'dobra')},
+    {label:'Arara de reposição',work:true,x:170,y:730,r:80,bx:170,by:630,px:170,py:825,on:()=>job('Arara de reposição','Pendure 12 peças nas araras do tamanho certo: P, M ou G.',84,'arara')},
+    {label:'Provadores',work:true,x:130,y:380,r:100,bx:130,by:216,px:130,py:505,on:()=>job('Provadores','Encontre a peça que cada cliente pedir: tipo, cor e tamanho. São 4 clientes.',96,'provador')}
+  ];
+  return S;
+};
+
 /* ========================================================= ENGINE */
-const BUILD={airport:BUILD_airport,roma:BUILD_roma,ny:BUILD_ny,marrakech:BUILD_marrakech,porto:BUILD_porto,miami:BUILD_miami};
-var BUILD_airport,BUILD_roma,BUILD_ny,BUILD_marrakech,BUILD_porto,BUILD_miami;
+const BUILD={cea:BUILD_cea,airport:BUILD_airport,roma:BUILD_roma,ny:BUILD_ny,marrakech:BUILD_marrakech,porto:BUILD_porto,miami:BUILD_miami};
+var BUILD_cea,BUILD_airport,BUILD_roma,BUILD_ny,BUILD_marrakech,BUILD_porto,BUILD_miami;
 const SCENES={};
-const state={keys:{},q:{},stamps:{},introDone:false,scene:null,busy:true};
+const state={keys:{},q:{},stamps:{},money:0,ceaIntro:false,introDone:false,scene:null,busy:true};
 const player={x:0,y:0,path:null,face:'up',moving:false,action:null,stuck:0,walkT:0};
 const cam={x:0,y:0};
 let NOW=0,searching=null,tapFx=null,muted=false;
 const SAVE_KEY='giselle_pelo_mundo_v2';
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({keys:state.keys,q:state.q,stamps:state.stamps,introDone:state.introDone}));}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d){state.keys=d.keys||{};state.q=d.q||{};state.stamps=d.stamps||{};state.introDone=!!d.introDone;}}catch(e){}}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({keys:state.keys,q:state.q,stamps:state.stamps,money:state.money,ceaIntro:state.ceaIntro,introDone:state.introDone}));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d){state.keys=d.keys||{};state.q=d.q||{};state.stamps=d.stamps||{};state.money=d.money||0;state.ceaIntro=!!d.ceaIntro;state.introDone=!!d.introDone;}}catch(e){}}
 function countKeys(){return CITIES.filter(c=>state.keys[c.id]).length;}
 
 const cv=$('#game'),ctx=cv.getContext('2d');
@@ -1174,6 +1289,15 @@ function trigger(){
 function hitAt(wx,wy){const S=state.scene;let best=null,bd=1e9;for(const n of S.npcs){const d=dist(wx,wy,n.x,n.y-24);if(d<36&&d<bd){best=n;bd=d;}}
   if(best)return{x:best.x,y:best.y+30,a:{type:'npc',npc:best}};
   for(const s of S.spots){if(dist(wx,wy,s.x,s.y)<s.r||dist(wx,wy,s.bx,s.by)<26)return{x:s.px,y:s.py,a:{type:'spot',spot:s}};}return null;}
+const JOY={on:false,id:null,vx:0,vy:0,m:0};
+(function(){const el=$('#joy'),kn=$('#joyKnob');
+  function upd(e){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2-16;let dx=e.clientX-cx,dy=e.clientY-cy;const d=Math.hypot(dx,dy);
+    if(d>R){dx*=R/d;dy*=R/d;}kn.style.transform=`translate(${dx}px,${dy}px)`;const dd=Math.hypot(dx,dy);JOY.m=dd/R;JOY.vx=dd?dx/dd:0;JOY.vy=dd?dy/dd:0;}
+  el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();unlockAudio();JOY.on=true;JOY.id=e.pointerId;el.classList.add('on');try{el.setPointerCapture(e.pointerId);}catch(_){}upd(e);});
+  el.addEventListener('pointermove',e=>{if(JOY.on&&e.pointerId===JOY.id)upd(e);});
+  const end=e=>{if(e.pointerId!==JOY.id)return;JOY.on=false;JOY.m=0;el.classList.remove('on');kn.style.transform='';};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);el.addEventListener('lostpointercapture',end);
+})();
 const DRAG={on:false,id:null,sx:0,sy:0,x0:0,y0:0,t0:0,moved:false,follow:false,hit:null};
 cv.addEventListener('pointerdown',e=>{
   e.preventDefault();unlockAudio();if(!state.scene||!canMove())return;
@@ -1214,7 +1338,8 @@ function update(dt){
   if(searching&&NOW-searching.t0>1){const cb=searching.cb;searching=null;cb();}
   if(MG.on&&MG.ready&&MG.game&&MG.game.frame){MG.t+=dt;MG.game.frame(dt,MG.t);}
   if(DRAG.follow&&!canMove())DRAG.follow=false;
-  if(canMove()&&DRAG.on&&DRAG.follow){
+  if(canMove()&&JOY.on&&JOY.m>.18){player.path=null;player.action=null;player.moving=stepToward(player.x+JOY.vx*40,player.y+JOY.vy*40,dt,95+125*Math.min(1,JOY.m));}
+  else if(canMove()&&DRAG.on&&DRAG.follow){
     const tx=cam.x+DRAG.sx/Z,ty=cam.y+DRAG.sy/Z;
     if(dist(player.x,player.y,tx,ty)>12)player.moving=stepToward(tx,ty,dt,195);else player.moving=false;
   }
@@ -1251,12 +1376,13 @@ function bubble(c,x,y,t,kind,faded){
   else if(kind==='check'){c.strokeStyle='#2a9d8f';c.lineWidth=3;c.lineCap='round';c.beginPath();c.moveTo(-6,-2);c.lineTo(-1,3);c.lineTo(7,-7);c.stroke();}
   else if(kind==='lock'){RR(c,-6,-4,12,10,2,'#e9b949');c.strokeStyle='#1f2a44';c.lineWidth=2;c.beginPath();c.arc(0,-5,4,Math.PI,0);c.stroke();C(c,0,1,1.6,'#1f2a44');}
   else if(kind==='spark'){STAR(c,0,-2,8,'#e9b949');}
+  else if(kind==='work'){RR(c,-14,-14,28,24,10,'#2563c9');P(c,[-5,9,5,9,0,16],'#2563c9');TX(c,'R$',0,-2,11,'#ffffff','700');}
   else if(kind==='excl'){RR(c,-14,-14,28,24,10,'#ffd166');P(c,[-5,9,5,9,0,16],'#ffd166');TX(c,'!',0,-2,18,'#1f2a44','700');}
   c.restore();
 }
 function drawPlayer(c,t){
   const f=player.face,sx=f==='left'?16:f==='right'?-16:15;
-  const look={skin:CONFIG.pele,hair:'long',hc:CONFIG.cabelo,top:CONFIG.roupa,dress:true,legs:CONFIG.pele,shoes:'#ffffff',s:1.05,flower:true};
+  const look={skin:CONFIG.pele,hair:'pony',hc:CONFIG.cabelo,top:CONFIG.roupa,sport:true,legs:CONFIG.legging||'#2b2d42',shoes:'#ffffff',s:1.05,badge:!!(state.scene&&state.scene.id==='cea')};
   if(f==='up'){suitcase(c,player.x+sx,player.y-1);person(c,player.x,player.y,look,player.walkT,player.moving,f);}
   else{person(c,player.x,player.y,look,player.walkT,player.moving,f);suitcase(c,player.x+sx,player.y-1);}
 }
@@ -1279,6 +1405,7 @@ function render(){
   for(const s of S.spots){
     if(s.type==='gate')bubble(ctx,s.bx,s.by,t,state.keys[s.city.id]?'check':'plane',false);
     else if(s.type==='chest')bubble(ctx,s.bx,s.by,t,countKeys()===5?'spark':'lock',false);
+    else if(s.work)bubble(ctx,s.bx,s.by,t,'work',false);
     else if(!found)bubble(ctx,s.bx,s.by,t,'search',s.searched&&!s.on);
   }
   const qq=CITY[S.id]?Q(S.id):null;
@@ -1318,6 +1445,7 @@ function interactSpot(s){
   const S=state.scene;
   if(s.type==='gate')return gateDialog(s.city);
   if(s.type==='chest')return chestDialog();
+  if(S.id==='cea'){const r=s.on&&s.on();if(r)sayR(s.label,WORK.color,r);return;}
   const city=CITY[S.id],q=Q(S.id);
   if(state.keys[S.id])return say(s.label,city.color,['Você já tem a chave daqui! ✨ Volte ao aeroporto para o próximo destino.'],{buttons:[{label:'✈ Ir ao aeroporto',main:true,fn:goAirport},{label:'Passear mais'}]});
   const run=()=>{s.searched=true;const r=s.on?s.on(q):null;if(r)sayR(s.label,city.color,r);else{sfx('nope');say(s.label,city.color,[s.msg]);}};
@@ -1332,9 +1460,11 @@ function foundKey(city){
       {buttons:[{label:'✈ Voltar ao aeroporto',main:true,fn:goAirport},{label:'Ficar mais um pouco'}]});},2200);
 }
 function gateDialog(city){
-  const done=state.keys[city.id];sfx('ding');
-  say(`Portão ${city.gate} · ${city.short}`,city.color,[done?`Você já tem a chave de ${city.short}! ✓ Quer visitar de novo mesmo assim?`:`Voo ${city.flight} para ${city.name}, ${city.country} ${city.flag}. Última chamada para embarque!`],
-    {buttons:[{label:'Embarcar ✈',main:true,fn:()=>fly(city)},{label:'Agora não'}]});
+  const done=state.keys[city.id],m=state.money,p=city.price,title=`Portão ${city.gate} · ${city.short}`;sfx('ding');
+  if(done)return say(title,city.color,[`Você já tem a chave de ${city.short}! ✓ Sua passagem de volta é grátis. Quer visitar de novo?`],{buttons:[{label:'Embarcar ✈',main:true,fn:()=>fly(city)},{label:'Agora não'}]});
+  if(m>=p)return say(title,city.color,[`Voo ${city.flight} para ${city.name}, ${city.country} ${city.flag}.`,`Passagem: R$ ${p}. Seu saldo: R$ ${m}. Comprar e embarcar? 🎫`],
+    {buttons:[{label:`Comprar · R$ ${p} ✈`,main:true,fn:()=>{state.money-=p;save();sfx('cash');updateHUD();bumpMoney();fly(city);}},{label:'Agora não'}]});
+  say(title,city.color,[`Voo ${city.flight} para ${city.name} ${city.flag}. Passagem: R$ ${p}.`,`Você tem R$ ${m}. Faltam R$ ${p-m}! 💸 Que tal trabalhar um pouco na C&A?`],{buttons:[{label:'💼 Ir trabalhar',main:true,fn:goWork},{label:'Agora não'}]});
 }
 function chestDialog(){
   const n=countKeys();
@@ -1343,9 +1473,13 @@ function chestDialog(){
 }
 function openChest(){const A=getScene('airport');A.chestOpen=true;state.busy=true;sfx('win');setTimeout(()=>fadeTo(showFinal),2300);}
 function fly(city){state.busy=true;showFlight(`Voando para ${city.name}`,city.flag,()=>{enterScene(city.id);showArrival(city);});}
-function goAirport(){if(state.scene&&state.scene.id==='airport')return;const from=state.scene?CITY[state.scene.id]:null;state.busy=true;
-  showFlight('Voltando ao aeroporto','✈️',()=>{const sp=from?[GATES[from.id][0],GATES[from.id][1]+40]:null;enterScene('airport',sp);state.busy=false;
-    if(countKeys()===5)setTimeout(()=>toast('Você tem as 5 chaves! Vá até o cofre 🎁',4000),500);});}
+function goAirport(){if(state.scene&&state.scene.id==='airport')return;const fromWork=state.scene&&state.scene.id==='cea',from=state.scene?CITY[state.scene.id]:null;state.busy=true;
+  showFlight(fromWork?'Indo para o aeroporto':'Voltando ao aeroporto',fromWork?'🛫':'✈️',()=>{const sp=from?[GATES[from.id][0],GATES[from.id][1]+40]:null;enterScene('airport',sp);state.busy=false;
+    if(countKeys()===5)setTimeout(()=>toast('Você tem as 5 chaves! Vá até o cofre 🎁',4000),500);
+    else{const need=cheapest();if(need&&state.money>=need.price)setTimeout(()=>toast(`Saldo R$ ${state.money}: escolha um portão ✈`,3500),500);}},fromWork?'🚌':null);}
+function goWork(){if(state.scene&&state.scene.id==='cea')return;state.busy=true;
+  showFlight('Indo trabalhar na C&A','👗',()=>{enterScene('cea');state.busy=false;
+    if(!state.ceaIntro){state.ceaIntro=true;save();setTimeout(()=>talk(state.scene.npcs[0]),450);}else setTimeout(()=>toast('Escolha uma tarefa com o selo R$ 💼',3200),400);},'🚌');}
 
 /* ---------- senha do cofre ---------- */
 const SENHA=String(CONFIG.senha||'TE AMO').toUpperCase();
@@ -1390,8 +1524,8 @@ const mgc=$('#mgc'),mgx=mgc.getContext('2d'),MGW=400,MGH=420;let mgK=1;
 function sizeMG(){const w=mgc.clientWidth,h=mgc.clientHeight,d=Math.min(2,window.devicePixelRatio||1);mgc.width=Math.max(1,Math.round(w*d));mgc.height=Math.max(1,Math.round(h*d));mgK=mgc.width/MGW;}
 function mgMsg(t){$('#mgMsg').textContent=t;}
 function mgProg(h){$('#mgProg').innerHTML=h;}
-function mgCtrl(h){$('#mgCtrl').innerHTML=h||'';}
-function startMG(id){const g=MINI[id];MG.game=g;MG.city=CITY[state.scene.id];MG.t=0;MG.on=true;MG.ready=false;MG.won=false;state.busy=true;
+function mgCtrl(h,cols){const el=$('#mgCtrl');el.innerHTML=h||'';el.style.gridTemplateColumns=`repeat(${cols||3},1fr)`;}
+function startMG(id){const g=MINI[id];MG.game=g;MG.city=CITY[state.scene.id]||WORK;MG.t=0;MG.on=true;MG.ready=false;MG.won=false;state.busy=true;
   const el=$('#mg');el.style.setProperty('--c',MG.city.color);$('#mgTitle').textContent=g.title;$('#mgSub').textContent=g.sub;mgMsg('');mgProg('');mgCtrl('');el.classList.remove('hidden');
   requestAnimationFrame(()=>{sizeMG();g.start();MG.ready=true;});}
 function mgWin(){if(!MG.on||MG.won)return;MG.won=true;sfx('win');setTimeout(()=>{closeMG();foundKey(MG.city);},1300);}
@@ -1399,6 +1533,7 @@ function closeMG(){MG.on=false;$('#mg').classList.add('hidden');MG.game&&MG.game
 $('#mgClose').onclick=()=>{sfx('tap');closeMG();};
 function mgPos(e){const r=mgc.getBoundingClientRect();return[(e.clientX-r.left)*MGW/r.width,(e.clientY-r.top)*MGH/r.height];}
 mgc.addEventListener('pointerdown',e=>{e.preventDefault();unlockAudio();if(!MG.on||!MG.ready||MG.won)return;const[x,y]=mgPos(e);MG.game.down&&MG.game.down(x,y);try{mgc.setPointerCapture(e.pointerId);}catch(_){}});
+mgc.addEventListener('pointerup',e=>{if(!MG.on||!MG.ready||MG.won)return;const[x,y]=mgPos(e);MG.game.up&&MG.game.up(x,y);});
 mgc.addEventListener('pointermove',e=>{if(!MG.on||!MG.ready||MG.won)return;const[x,y]=mgPos(e);MG.game.move&&MG.game.move(x,y);});
 addEventListener('resize',()=>{if(MG.on)sizeMG();});
 function mgBegin(){mgx.setTransform(mgK,0,0,mgK,0,0);mgx.clearRect(0,0,MGW,MGH);return mgx;}
@@ -1572,12 +1707,14 @@ MINI.catch={title:'Presentes do mar',sub:'Arraste o balde para pegar 8 conchas e
 /* ---------- overlays ---------- */
 function fadeTo(cb){const f=$('#fade');f.style.opacity='1';setTimeout(()=>{cb();f.style.opacity='0';},360);}
 function makeClouds(el){if(el.dataset.done)return;el.dataset.done=1;for(let i=0;i<7;i++){const d=document.createElement('div');d.className='cloud';d.style.top=(6+i*13)+'%';d.style.setProperty('--s',(.5+((i*37)%10)/10).toFixed(2));d.style.animationDuration=(18+i*5)+'s';d.style.animationDelay=(-i*6)+'s';d.style.opacity=(.6+((i*13)%4)/10).toFixed(2);el.appendChild(d);}}
-function showFlight(title,sub,cb){
-  const el=$('#flight');$('#fTitle').textContent=title;$('#fSub').textContent=sub;makeClouds($('#flightSky'));
+function showFlight(title,sub,cb,veh){
+  const el=$('#flight');$('#fTitle').textContent=title;$('#fSub').textContent=sub;$('#fDots').textContent=veh?'PRÓXIMA PARADA':'APERTEM OS CINTOS';makeClouds($('#flightSky'));
+  const fv=$('#fVeh'),fp=$('#fPlane'),svgp=document.querySelector('#flight svg.path');fv.textContent=veh||'';fv.classList.toggle('hidden',!veh);fp.style.display=veh?'none':'';svgp.style.display=veh?'none':'';
   fadeTo(()=>{el.classList.remove('hidden');sfx('ding');
-    const path=$('#fpath'),plane=$('#fPlane'),L=path.getTotalLength(),box=$('.froute'),t0=performance.now(),dur=2500;
+    const path=$('#fpath'),L=path.getTotalLength(),box=$('.froute'),t0=performance.now(),dur=2500;
     (function step(now){const p=Math.min(1,(now-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,pt=path.getPointAtLength(e*L),pt2=path.getPointAtLength(Math.min(L,e*L+2)),w=box.clientWidth,h=box.clientHeight,sx=w/300,sy=h/120;
-      const ang=Math.atan2((pt2.y-pt.y)*sy,(pt2.x-pt.x)*sx);plane.style.transform=`translate(${pt.x*sx-23}px,${pt.y*sy-23}px) rotate(${ang}rad)`;
+      if(veh){fv.style.transform=`translate(${pt.x*sx-21}px,${h*.62-Math.abs(Math.sin(now/90))*4}px) scaleX(-1)`;}
+      else{const ang=Math.atan2((pt2.y-pt.y)*sy,(pt2.x-pt.x)*sx);fp.style.transform=`translate(${pt.x*sx-23}px,${pt.y*sy-23}px) rotate(${ang}rad)`;}
       if(p<1)requestAnimationFrame(step);else setTimeout(()=>fadeTo(()=>{el.classList.add('hidden');cb();}),200);})(t0);
   });
 }
@@ -1587,22 +1724,26 @@ function showArrival(city){
   $('#arrive').classList.remove('hidden');
 }
 $('#pcBtn').addEventListener('click',()=>{unlockAudio();sfx('tap');$('#arrive').classList.add('hidden');state.busy=false;
-  const S=state.scene;if(S&&!S.visited){S.visited=true;setTimeout(()=>toast('Arraste o dedo para andar · toque nas pessoas com 💬',3800),400);}});
+  const S=state.scene;if(S&&!S.visited){S.visited=true;setTimeout(()=>toast('Use o controle 🕹️ para andar · toque nas pessoas com 💬',3800),400);}});
 let toastT=null;function toast(msg,ms=3000){const el=$('#toast');el.textContent=msg;el.classList.remove('hidden');el.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.classList.add('hidden'),400);},ms);}
 
 function updateHUD(){
-  const S=state.scene;if(!S)return;const isCity=!!CITY[S.id];
-  $('#loc').textContent=isCity?`${CITY[S.id].flag} ${CITY[S.id].name}`:'✈ Aeroporto';
-  let o;if(!isCity){const n=countKeys();o=n===5?'Abra o <b>cofre do tesouro</b> no centro do saguão 🎁':`Escolha um portão ✈ · <b>${n}/5</b> chaves`;}
+  const S=state.scene;if(!S)return;const isCity=!!CITY[S.id],isWork=S.id==='cea',need=cheapest();
+  $('#loc').textContent=isCity?`${CITY[S.id].flag} ${CITY[S.id].name}`:isWork?'👗 C&A · Trabalho':'✈ Aeroporto';
+  let o;
+  if(isWork)o=need?(state.money>=need.price?`Já dá para a passagem para <b>${need.name}</b>! Volte ao aeroporto ✈`:`Faça as tarefas com o selo <b>R$</b> · faltam <b>R$ ${need.price-state.money}</b>`):'Volte ao <b>aeroporto</b> ✈';
+  else if(!isCity){const n=countKeys();o=n===5?'Abra o <b>cofre do tesouro</b> no centro do saguão 🎁':(need&&state.money<need.price?`Ganhe dinheiro: toque em <b>💼 Trabalhar</b> · passagem a partir de <b>R$ ${need.price}</b>`:`Escolha um portão ✈ · <b>${n}/5</b> chaves`);}
   else if(state.keys[S.id])o='Chave encontrada! Volte ao <b>aeroporto</b> ✈';else o=S.objective?S.objective(Q(S.id)):'';
   $('#obj').innerHTML='🎯 '+o;
   const K=$('#keys');K.innerHTML='';CITIES.forEach(ct=>{const d=document.createElement('div');d.className='k'+(state.keys[ct.id]?' on':'');d.style.color=state.keys[ct.id]?ct.color:'#cfc7b8';d.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4.2"/><path d="M11.2 12H21.5M18.5 12v3.6M21.5 12v3"/></svg>';K.appendChild(d);});
+  $('#money').textContent='💰 R$ '+state.money;
   const items=isCity?Object.keys(Q(S.id).items):[],bag=$('#bag');
   if(items.length){bag.textContent='🎒 '+items.map(k=>ITEMS[k].e).join(' ');bag.classList.remove('hidden');}else bag.classList.add('hidden');
-  $('#btnAirport').style.visibility=isCity?'visible':'hidden';
+  $('#btnAirport').style.display=(isCity||isWork)?'':'none';$('#btnWork').style.display=S.id==='airport'?'':'none';
 }
-$('#btnAirport').addEventListener('click',()=>{unlockAudio();if(!canMove())return;sfx('tap');say('Voltar ao aeroporto?','#1d3557',['Quer pegar um voo de volta para o aeroporto?'],{buttons:[{label:'✈ Sim, voltar',main:true,fn:goAirport},{label:'Ficar aqui'}]});});
-$('#btnSound').addEventListener('click',()=>{muted=!muted;$('#btnSound').textContent=muted?'🔇':'🔊';unlockAudio();sfx('tap');});
+$('#btnWork').addEventListener('click',()=>{unlockAudio();if(!canMove())return;sfx('tap');say('Trabalhar na C&A',WORK.color,[`Pegar o ônibus e ir trabalhar na C&A para ganhar dinheiro? 💼 Seu saldo: R$ ${state.money}.`],{buttons:[{label:'🚌 Ir trabalhar',main:true,fn:goWork},{label:'Agora não'}]});});
+$('#btnAirport').addEventListener('click',()=>{unlockAudio();if(!canMove())return;sfx('tap');const w=state.scene&&state.scene.id==='cea';say(w?'Encerrar o turno?':'Voltar ao aeroporto?','#1d3557',[w?`Encerrar o turno e ir para o aeroporto? Seu saldo: R$ ${state.money}.`:'Quer pegar um voo de volta para o aeroporto?'],{buttons:[{label:'✈ Sim, voltar',main:true,fn:goAirport},{label:'Ficar aqui'}]});});
+$('#btnSound').addEventListener('click',()=>{muted=!muted;$('#btnSound').innerHTML=`<span>${muted?'🔇':'🔊'}</span><small>Som</small>`;unlockAudio();sfx('tap');});
 
 function showFinal(){
   state.busy=true;$('#hud').classList.add('hidden');$('#bottomBar').classList.add('hidden');closeDlg();
@@ -1622,6 +1763,146 @@ function confetti(){
     if(!$('#final').classList.contains('hidden'))requestAnimationFrame(f);})(last);
 }
 
+
+/* ---------- tarefas da C&A ---------- */
+const brl=c=>'R$ '+(c/100).toFixed(2).replace('.',',');
+function cheapest(){return CITIES.filter(c=>!state.keys[c.id]).sort((a,b)=>a.price-b.price)[0]||null;}
+function mgPay(v){if(!MG.on||MG.won)return;MG.won=true;v=Math.max(10,Math.round(v));state.money+=v;save();sfx('cash');mgMsg(`Tarefa concluída! +R$ ${v} 💰`);
+  setTimeout(()=>{closeMG();updateHUD();bumpMoney();const need=cheapest(),m=state.money;
+    const lines=[`Mandou bem, {nome}! Você ganhou R$ ${v}. 💰`,`Saldo: R$ ${m}.`+(need?(m>=need.price?` Já dá para a passagem para ${need.name}! ✈`:` Faltam R$ ${need.price-m} para a passagem para ${need.name}.`):'')];
+    say('Gerente Márcia',WORK.color,lines,{buttons:need&&m>=need.price?[{label:'✈ Ir ao aeroporto',main:true,fn:goAirport},{label:'Trabalhar mais'}]:null});},1500);}
+function bumpMoney(){const el=$('#money');el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
+function storeBG(c,t){R(c,0,0,MGW,MGH,'#f3ede4');R(c,0,0,MGW,8,'#2563c9');}
+function wrapTx(c,text,x,y,maxW,lh,size,col){c.font=`700 ${size}px Nunito, system-ui, sans-serif`;const words=text.split(' ');let line='',yy=y;const lines=[];
+  for(const w of words){const test=line?line+' '+w:w;if(c.measureText(test).width>maxW&&line){lines.push(line);line=w;}else line=test;}lines.push(line);
+  c.fillStyle=col;c.textAlign='center';c.textBaseline='middle';lines.forEach((l,i)=>c.fillText(l,x,y+i*lh));return lines.length;}
+
+/* Caixa */
+const CAT=[['👕','Camiseta',3990],['👖','Calça',11990],['👗','Vestido',8990],['🧥','Jaqueta',14990],['🩳','Shorts',4990],['🧦','Meias',1990],['👟','Tênis',15990],['🧢','Boné',2990],['👚','Blusa',5990],['👜','Bolsa',7990]];
+MINI.caixa={title:'Caixa',sub:'Toque nos produtos para passar no leitor e depois escolha o troco certo. São 3 clientes!',
+  start(){this.n=0;this.pay=0;this.next();},
+  prog(){mgProg([0,1,2].map(i=>`<span class="dot ${i<this.n?'on':''}">🛍️</span>`).join(''));},
+  next(){const k=2+Math.min(2,this.n),pool=CAT.slice().sort(()=>Math.random()-.5).slice(0,k);
+    this.items=pool.map((it,i)=>({e:it[0],nm:it[1],p:it[2],x:k===2?130+i*140:(k===3?75+i*125:58+i*95),y:300,s:0,fly:0}));
+    this.sum=0;this.st='scan';this.note=0;this.cust=['👩','👨‍🦱','👵','🧑','👩‍🦰','👨‍🦳'][Math.random()*6|0];this.t0=MG.t;this.prog();mgCtrl('');mgMsg('Toque nos produtos para passar no leitor 🛒');},
+  frame(dt,t){const c=mgBegin();storeBG(c,t);R(c,0,8,MGW,150,'#e8eef6');
+    for(let i=0;i<6;i++)RR(c,14+i*64,22,52,14,4,['#ffadad','#ffd6a5','#caffbf','#9bf6ff','#bdb2ff','#ffc6ff'][i]);
+    const bob=Math.sin(t*3)*2;C(c,64,104+bob,40,'#ffffff');TX(c,this.cust,64,106+bob,46,'#000');
+    RR(c,228,54,156,74,10,'#1d3557');TX(c,'TOTAL',306,72,12,'#9fb3c8');TX(c,brl(this.sum),306,101,23,'#7CFC9A');
+    if(this.note){RR(c,118,112,96,42,6,'#7fbf86');RR(c,124,118,84,30,4,'#a8d5ad');TX(c,brl(this.note).replace(',00',''),166,133,15,'#1f4d2b');}
+    R(c,0,170,MGW,250,'#dfe4ea');R(c,0,170,MGW,8,'#c3cad3');
+    RR(c,14,240,372,124,14,'#3a3f47');c.save();c.beginPath();c.roundRect(14,240,372,124,14);c.clip();for(let x=-40+(t*40)%40;x<400;x+=40)R(c,x,240,3,124,'rgba(255,255,255,.08)');c.restore();
+    RR(c,330,196,58,40,8,'#555');R(c,336,206,46,4,Math.sin(t*12)>0?'#ff3b3b':'#ff8a8a');
+    for(const it of this.items){if(it.s&&it.fly>=1)continue;let x=it.x,y=it.y,sc=1;if(it.s){it.fly=Math.min(1,it.fly+dt*2.4);x=it.x+(360-it.x)*it.fly;y=it.y-it.fly*90;sc=1-it.fly*.6;}
+      c.save();c.translate(x,y);c.scale(sc,sc);RR(c,-40,-46,80,92,12,'#ffffff');TX(c,it.e,0,-14,36,'#000');RR(c,-34,16,68,22,6,'#ffd166');TX(c,brl(it.p).replace('R$ ',''),0,27,12,'#1f2a44');c.restore();}
+    R(c,0,384,MGW,36,'#cfd6de');TX(c,this.st==='scan'?'Toque nos produtos ☝️':'',200,402,13,'#5a6480','700');
+  },
+  down(x,y){if(this.st!=='scan')return;for(const it of this.items){if(!it.s&&Math.abs(x-it.x)<44&&Math.abs(y-it.y)<50){it.s=1;this.sum+=it.p;tone(1900,.07,0,'square',.035);
+      if(this.items.every(i=>i.s))setTimeout(()=>{if(MG.on&&this.st==='scan')this.toPay();},350);return;}}},
+  toPay(){this.st='pay';const notes=[5000,10000,20000,50000];let note=notes.find(v=>v>=this.sum+100)||50000;if(Math.random()<.35){const i=notes.indexOf(note);if(i<3)note=notes[i+1];}
+    this.note=note;this.change=note-this.sum;const opts=[this.change];
+    for(const v of[this.change+100,this.change-100,this.change+1000,this.change-1000,this.change+10,this.change-10].filter(v=>v>0).sort(()=>Math.random()-.5)){if(opts.length>=3)break;if(!opts.includes(v))opts.push(v);}
+    opts.sort(()=>Math.random()-.5);
+    mgCtrl(opts.map(v=>`<button data-v="${v}"><span>💵</span>${brl(v)}</button>`).join(''));
+    document.querySelectorAll('#mgCtrl button').forEach(b=>b.onclick=()=>this.press(+b.dataset.v,b));
+    mgMsg(`Total ${brl(this.sum)}. Pagou com ${brl(this.note).replace(',00','')}. Qual é o troco?`);},
+  press(v,b){if(this.st!=='pay')return;
+    if(v===this.change){this.st='done';sfx('cash');const tm=MG.t-this.t0;this.pay+=24+Math.max(0,Math.round(8-tm/2.5));this.n++;this.prog();mgMsg('Troco certinho! Volte sempre 😊');
+      setTimeout(()=>{if(!MG.on)return;if(this.n>=3)mgPay(this.pay);else this.next();},1100);}
+    else{sfx('nope');b.disabled=true;this.pay=Math.max(0,this.pay-4);mgMsg('A cliente conferiu... esse não é o troco. Tente de novo!');}}
+};
+
+/* Mesa de dobrar */
+const ARW={L:'←',R:'→',U:'↑',D:'↓'};
+function drawTee(c,col,f){const W=120,H=140;let L=-W/2+(f.R?26:0),Rr=W/2-(f.L?26:0),top=-H/2,bot=H/2;if(f.U)bot=top+H/2;if(f.D)top=top+H/4;
+  const dk=shade(col==='#ffffff'?'#e0e0e0':col,-.18);
+  if(!f.R)P(c,[-W/2,top+6,-W/2-34,top+40,-W/2-20,top+60,-W/2,top+46],col);
+  if(!f.L)P(c,[W/2,top+6,W/2+34,top+40,W/2+20,top+60,W/2,top+46],col);
+  RR(c,L,top,Rr-L,bot-top,8,col);
+  if(!f.D){c.fillStyle=dk;c.beginPath();c.ellipse((L+Rr)/2,top+2,17,9,0,0,Math.PI);c.fill();}
+  if(f.R)R(c,L,top,9,bot-top,dk);if(f.L)R(c,Rr-9,top,9,bot-top,dk);if(f.U)R(c,L,bot-9,Rr-L,9,dk);if(f.D)R(c,L,top,Rr-L,9,dk);
+  c.strokeStyle='rgba(0,0,0,.15)';c.lineWidth=2;c.strokeRect(L,top,Rr-L,bot-top);}
+MINI.dobra={title:'Mesa de dobrar',sub:'Dobre 4 camisetas seguindo as setas: deslize o dedo na camiseta ou use os botões.',
+  start(){this.n=0;this.pay=0;this.left=50;this.st='play';this.slide=0;this.newShirt();
+    mgCtrl(['L','U','D','R'].map(d=>`<button data-d="${d}"><span>${ARW[d]}</span></button>`).join(''),4);
+    document.querySelectorAll('#mgCtrl button').forEach(b=>b.onclick=()=>this.press(b.dataset.d));this.prog();mgMsg('Siga a seta para dobrar 👕');},
+  prog(){mgProg(`<span style="font-size:17px">👕 ${this.n}/4 &nbsp; ⏱️ ${Math.ceil(this.left)}s</span>`);},
+  newShirt(){this.col=['#e63946','#3a86ff','#2a9d8f','#f4a261','#9b5de5','#ffffff','#222222'][Math.random()*7|0];
+    const s=Math.random()<.5?['R','L']:['L','R'];this.steps=s.concat(this.n>=2?['U','D']:['U']);this.k=0;this.f={L:0,R:0,U:0,D:0};this.shake=0;},
+  press(d){if(this.st!=='play'||this.slide)return;
+    if(d===this.steps[this.k]){this.f[d]=1;this.k++;tone(420+this.k*90,.09,0,'triangle',.08);
+      if(this.k>=this.steps.length){this.n++;this.pay+=15;this.slide=.001;mgMsg(['Que capricho! ✨','Dobradinha perfeita! 👌','Mais uma pronta!','Pilha completa! 🎉'][this.n-1]);}}
+    else{this.shake=.35;sfx('nope');mgMsg('Não é para esse lado! Siga a seta ☝️');}},
+  finish(){if(this.st==='end')return;this.st='end';mgPay(this.pay+Math.round(this.left*.6)+(this.n>=4?6:0));},
+  frame(dt,t){const c=mgBegin();storeBG(c,t);R(c,0,8,MGW,90,'#efe6da');
+    for(let i=0;i<8;i++){R(c,20+i*48,30,1,8,'#8d99ae');RR(c,12+i*48,36,18,46,4,GCOL[i%GCOL.length]);}
+    R(c,0,98,MGW,322,'#d9b98f');for(let i=0;i<7;i++)R(c,0,110+i*46,MGW,2,'rgba(120,80,40,.15)');
+    if(this.st==='play'){this.left-=dt;if(this.left<=0){this.left=0;this.finish();}if(Math.floor(this.left*4)!==this.lp){this.lp=Math.floor(this.left*4);this.prog();}}
+    for(let i=0;i<this.n;i++){RR(c,318,360-i*14,64,14,3,['#e63946','#3a86ff','#2a9d8f','#f4a261'][i%4]);c.strokeStyle='rgba(0,0,0,.15)';c.lineWidth=1;c.strokeRect(318,360-i*14,64,14);}
+    let cx=180,cy=250,sc=1;if(this.slide){this.slide=Math.min(1,this.slide+dt*2.5);cx=180+(350-180)*this.slide;cy=250+(360-this.n*14-250)*this.slide;sc=1-this.slide*.5;
+      if(this.slide>=1){this.slide=0;if(this.n>=4)this.finish();else this.newShirt();}}
+    const sh=this.shake>0?Math.sin(t*60)*6:0;this.shake=Math.max(0,this.shake-dt);
+    if(this.st!=='end'||this.slide){c.save();c.translate(cx+sh,cy);c.scale(sc,sc);drawTee(c,this.col,this.f);c.restore();}
+    if(this.st==='play'&&!this.slide&&this.k<this.steps.length){const d=this.steps[this.k],pu=.55+.45*Math.sin(t*6),off=Math.sin(t*6)*8;
+      const pos={R:[-40+off,0],L:[40-off,0],U:[0,40-off],D:[0,-40+off]}[d];c.globalAlpha=pu;C(c,cx+pos[0],cy+pos[1],26,'rgba(31,42,68,.85)');TX(c,ARW[d],cx+pos[0],cy+pos[1]+1,30,'#ffd166');c.globalAlpha=1;}
+    RR(c,20,400,360,8,4,'rgba(0,0,0,.15)');RR(c,20,400,360*(this.left/50),8,4,this.left>15?'#2a9d8f':'#e63946');
+  },
+  down(x,y){this.sw=[x,y];},
+  up(x,y){if(!this.sw)return;const dx=x-this.sw[0],dy=y-this.sw[1];this.sw=null;if(Math.hypot(dx,dy)<26)return;this.press(Math.abs(dx)>Math.abs(dy)?(dx>0?'R':'L'):(dy>0?'D':'U'));}
+};
+
+/* Arara de reposição */
+const SIZES=['P','M','G'];
+MINI.arara={title:'Arara de reposição',sub:'Pendure cada peça na arara do tamanho certo: P, M ou G. Rápido, a loja está cheia!',
+  start(){this.n=0;this.ok=0;this.pay=0;this.total=12;this.hung={P:[],M:[],G:[]};this.anim=null;this.end=false;this.wait=0;this.spawn();
+    mgCtrl(SIZES.map(s=>`<button data-s="${s}"><span>🏷️</span>${s}</button>`).join(''));document.querySelectorAll('#mgCtrl button').forEach(b=>b.onclick=()=>this.press(b.dataset.s));mgMsg('Qual é o tamanho? Toque na arara certa 🏷️');},
+  prog(){mgProg(`<span style="font-size:17px">👗 ${this.ok}/${this.total}</span>`);},
+  spawn(){if(this.n>=this.total)return this.finish();this.piece={type:['tee','dress','pants','jacket'][Math.random()*4|0],col:GCOL[Math.random()*GCOL.length|0],size:SIZES[Math.random()*3|0]};this.lim=Math.max(1.8,3.6-this.n*.15);this.tl=this.lim;this.n++;this.prog();},
+  press(sz){if(!this.piece||this.anim||this.end)return;const ok=sz===this.piece.size;this.anim={p:this.piece,to:sz,u:0,ok};this.piece=null;
+    if(ok){this.ok++;this.pay+=6;tone(880,.1,0,'triangle',.08);mgMsg(['Isso! ✨','Perfeito!','Boa! 👏','Rapidinha! ⚡'][Math.random()*4|0]);}else{sfx('nope');mgMsg(`Ops! Era tamanho ${this.anim.p.size}.`);}this.prog();},
+  finish(){if(this.end)return;this.end=true;mgPay(this.pay+(this.ok===this.total?12:0));},
+  frame(dt,t){const c=mgBegin();storeBG(c,t);R(c,0,250,MGW,170,'#ebe3d7');
+    const RX={P:72,M:200,G:328};
+    for(const s of SIZES){const x=RX[s];R(c,x-56,286,112,4,'#8d99ae');R(c,x-56,286,4,110,'#8d99ae');R(c,x+52,286,4,110,'#8d99ae');
+      this.hung[s].slice(-6).forEach((g,i)=>{garment(c,g.type,x-42+i*17,326,.42,g.col);});
+      C(c,x,398,17,'#1f3b73');TX(c,s,x,399,18,'#fff');}
+    if(this.piece&&!this.end){this.tl-=dt;if(this.tl<=0){sfx('nope');mgMsg('Demorou! Essa ficou para trás 😅');this.piece=null;this.wait=.5;}}
+    if(!this.piece&&!this.anim&&!this.end){this.wait-=dt;if(this.wait<=0)this.spawn();}
+    if(this.piece){const p=this.piece,bob=Math.sin(t*3)*3;hanger(c,200,96+bob);garment(c,p.type,200,140+bob,1.15,p.col);
+      C(c,252,120+bob,22,'#ffd166');c.strokeStyle='#1f2a44';c.lineWidth=2;c.beginPath();c.arc(252,120+bob,22,0,TAU);c.stroke();TX(c,p.size,252,121+bob,22,'#1f2a44');
+      RR(c,110,216,180,10,5,'rgba(0,0,0,.12)');RR(c,110,216,180*Math.max(0,this.tl/this.lim),10,5,this.tl/this.lim>.35?'#2a9d8f':'#e63946');}
+    if(this.anim){const a=this.anim;a.u=Math.min(1,a.u+dt*3);const tx=RX[a.to],x=200+(tx-200)*a.u,y=140+(326-140)*a.u;garment(c,a.p.type,x,y,1.15-a.u*.7,a.p.col);
+      if(a.u>=1){if(a.ok)this.hung[a.to].push(a.p);this.anim=null;this.wait=.15;}}
+  },
+  down(x,y){if(y>250)this.press(x<136?'P':x<264?'M':'G');}
+};
+
+/* Provadores */
+const GT=[['tee','camiseta','f'],['dress','vestido','m'],['pants','calça','f'],['jacket','jaqueta','f']];
+const GC=[['#e63946','vermelho','vermelha'],['#3a86ff','azul','azul'],['#2a9d8f','verde','verde'],['#f4c20d','amarelo','amarela'],['#ff6fae','rosa','rosa'],['#222222','preto','preta']];
+MINI.provador={title:'Provadores',sub:'Leia o pedido e encontre a peça certa: tipo, cor e tamanho. São 4 clientes!',
+  start(){this.n=0;this.pay=0;this.next();},
+  prog(){mgProg([0,1,2,3].map(i=>`<span class="dot ${i<this.n?'on':''}">👗</span>`).join(''));},
+  next(){const tg={t:Math.random()*4|0,c:Math.random()*6|0,s:Math.random()*3|0},key=o=>o.t+'-'+o.c+'-'+o.s,seen=new Set([key(tg)]),cards=[tg];let guard=0;
+    while(cards.length<6&&guard++<200){const o={...tg},r=Math.random();if(r<.35)o.s=Math.random()*3|0;else if(r<.7)o.c=Math.random()*6|0;else o.t=Math.random()*4|0;if(Math.random()<.3)o.s=Math.random()*3|0;if(!seen.has(key(o))){seen.add(key(o));cards.push(o);}}
+    this.cards=cards.sort(()=>Math.random()-.5).map((o,i)=>({...o,x:70+(i%3)*130,y:222+(i/3|0)*116,bad:0,win:0}));this.tg=tg;this.st='pick';this.t0=MG.t;
+    this.cust=['👩','👧','👵','👩‍🦱','🧑','👨'][Math.random()*6|0];const T=GT[tg.t],Cc=GC[tg.c];
+    this.req=`Oi! Você tem ${T[2]==='m'?'um':'uma'} ${T[1]} ${T[2]==='m'?Cc[1]:Cc[2]}, tamanho ${SIZES[tg.s]}?`;this.prog();mgMsg('Toque na peça que a cliente pediu 👗');},
+  frame(dt,t){const c=mgBegin();storeBG(c,t);
+    for(let k=0;k<10;k++)RR(c,k*40,8,40,152,8,k%2?'#c9184a':'#a4133c');R(c,0,8,MGW,6,'#9aa3ad');
+    const bob=Math.sin(t*3)*2;C(c,58,92+bob,40,'#ffffff');TX(c,this.cust,58,94+bob,46,'#000');
+    RR(c,108,40,282,96,14,'#ffffff');P(c,[108,80,96,92,110,94],'#ffffff');wrapTx(c,this.req,249,72,256,22,16,'#1f2a44');
+    R(c,0,160,MGW,260,'#f3ede4');
+    for(const cd of this.cards){const sh=cd.bad>0?Math.sin(t*60)*5:0;cd.bad=Math.max(0,cd.bad-dt);
+      RR(c,cd.x-58+sh,cd.y-52,116,104,12,cd.win?'#d8f3dc':'#ffffff');c.strokeStyle=cd.win?'#2a9d8f':'rgba(0,0,0,.08)';c.lineWidth=cd.win?3:1.5;c.beginPath();c.roundRect(cd.x-58+sh,cd.y-52,116,104,12);c.stroke();
+      garment(c,GT[cd.t][0],cd.x+sh-8,cd.y+2,.95,GC[cd.c][0]);C(c,cd.x+sh+36,cd.y-30,14,'#1f3b73');TX(c,SIZES[cd.s],cd.x+sh+36,cd.y-29,14,'#fff');}
+  },
+  down(x,y){if(this.st!=='pick')return;for(const cd of this.cards){if(Math.abs(x-cd.x)<58&&Math.abs(y-cd.y)<52){
+      if(cd.t===this.tg.t&&cd.c===this.tg.c&&cd.s===this.tg.s){this.st='ok';cd.win=1;sfx('item');const tm=MG.t-this.t0;this.pay+=18+Math.max(0,Math.round(6-tm/1.5));this.n++;this.prog();mgMsg('Isso mesmo! A cliente amou 😍');
+        setTimeout(()=>{if(!MG.on)return;if(this.n>=4)mgPay(this.pay);else this.next();},1000);}
+      else{cd.bad=.4;sfx('nope');this.pay=Math.max(0,this.pay-3);mgMsg('Não é essa... confira tipo, cor e tamanho!');}return;}}}
+};
+
 /* ---------- music ---------- */
 function NF(n){const m=/^([A-G])([#b]?)(\d)$/.exec(n);if(!m)return null;const b={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);return 440*Math.pow(2,((+m[3]+1)*12+b-69)/12);}
 const SONGS={
@@ -1630,6 +1911,7 @@ const SONGS={
   ny:{bpm:112,shk:1,beat:1,lead:'triangle',lv:.02,ld:.22,bv:.045,bd:.45,mel:'- F4 - A4 - F4 - B4 - E4 - G4 - E4 - C#5',bass:'D3 F3 A3 C4 G2 B2 D3 F3 C3 E3 G3 B3 A2 C#3 E3 G3'},
   marrakech:{bpm:118,shk:1,lead:'triangle',lv:.022,ld:.22,bv:.04,bd:.35,mel:'D5 Eb5 F#5 G5 A5 G5 F#5 Eb5 D5 - A4 Bb4 C5 Bb4 A4 - G4 A4 Bb4 A4 G4 F#4 Eb4 D4',bass:'D2 - D3 - A2 - D3 D2 D2 - D3 - A2 - D3 - D2 - D3 - A2 - D3 D2'},
   porto:{bpm:96,lead:'triangle',lv:.024,ld:.4,bv:.035,bd:.9,mel:'A3 E4 A4 C5 A4 E4 E3 B3 E4 G#4 E4 B3 A3 E4 A4 C5 A4 E4 D3 A3 D4 F4 D4 A3 E3 B3 E4 G#4 B4 G#4',bass:'A2 - - - - - E2 - - - - - A2 - - - - - D2 - - - - - E2 - - - - -'},
+  cea:{bpm:124,shk:1,lead:'triangle',lv:.022,ld:.18,bv:.04,bd:.3,mel:'E5 - G5 E5 D5 - C5 D5 E5 - G5 A5 G5 - E5 - F5 - A5 F5 E5 - D5 E5 F5 - A5 C6 B5 - G5 -',bass:'C3 - C3 - C3 - C3 - A2 - A2 - A2 - A2 - F2 - F2 - F2 - F2 - G2 - G2 - G2 - G2 -'},
   miami:{bpm:104,shk:1,lead:'sine',lv:.028,ld:.18,bv:.04,bd:.25,mel:'C5 - E5 G5 - E5 C5 - D5 - F5 A5 - F5 D5 - E5 - G5 B5 - G5 E5 - F5 A5 G5 E5 D5 C5 - -',bass:'C3 - - C3 - - C3 - D3 - - D3 - - D3 - E3 - - E3 - - E3 - F3 - - G3 - - G3 -'}
 };
 for(const k in SONGS){const s=SONGS[k];s.M=s.mel.split(/\s+/).map(NF);s.B=s.bass.split(/\s+/).map(NF);}
@@ -1669,28 +1951,30 @@ function sfx(k){if(!AC||muted)return;switch(k){
   case'ding':tone(659,.6,0,'sine',.09);tone(523,.9,.32,'sine',.09);break;
   case'coin':tone(1318,.12,0,'triangle',.07);tone(1760,.3,.07,'sine',.06);break;
   case'item':tone(784,.12,0,'triangle',.09);tone(1175,.25,.1,'triangle',.08);break;
+  case'cash':tone(1568,.09,0,'square',.05);tone(2093,.32,.08,'triangle',.08);shaker(0,.06);shaker(.06,.04);break;
   case'win':[523,659,784,659,784,1047].forEach((f,i)=>tone(f,.42,i*.15,'triangle',.12));tone(1047,1.2,.95,'sine',.08);break;}}
 
 /* ---------- start ---------- */
 load();
 const qs=new URLSearchParams(location.search);
-if(qs.has('reset')){state.keys={};state.q={};state.stamps={};state.introDone=false;save();}
+if(qs.has('reset')){state.keys={};state.q={};state.stamps={};state.money=0;state.ceaIntro=false;state.introDone=false;save();}
+if(qs.has('rico')){state.money=5000;}
 if(qs.has('teste')){CITIES.forEach(c=>{state.keys[c.id]=true;state.stamps[c.id]=new Date().toLocaleDateString('pt-BR');});state.introDone=true;}
 $('#introTitle').textContent=`${CONFIG.nome} pelo Mundo`;$('#passName').textContent=CONFIG.nome.toUpperCase();document.title=`${CONFIG.nome} pelo Mundo`;
 makeClouds($('#introSky'));
 if(countKeys()>0||Object.keys(state.q).length){$('#startBtn').textContent='Continuar viagem ✈';$('#resetBtn').classList.remove('hidden');}
-$('#resetBtn').addEventListener('click',()=>{if(confirmReset()){state.keys={};state.q={};state.stamps={};state.introDone=false;save();location.href=location.pathname;}});
+$('#resetBtn').addEventListener('click',()=>{if(confirmReset()){state.keys={};state.q={};state.stamps={};state.money=0;state.ceaIntro=false;state.introDone=false;save();location.href=location.pathname;}});
 function confirmReset(){return window.confirm('Recomeçar a viagem do zero? As chaves encontradas serão perdidas.');}
 $('#startBtn').addEventListener('click',async()=>{
   unlockAudio();sfx('tap');
   try{await Promise.race([document.fonts.load('700 16px Fredoka'),new Promise(r=>setTimeout(r,1200))]);}catch(e){}
   fadeTo(()=>{$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');$('#bottomBar').classList.remove('hidden');enterScene('airport');state.busy=false;
     if(!state.introDone){setTimeout(()=>{const bia=state.scene.npcs[0];bia.talked=true;
-      say(bia.name,'#1d3557',['Olá, {nome}! Bem-vinda ao Aeroporto Internacional {nome}. ✈','Hoje você vai dar a volta ao mundo! Em cada cidade tem uma chave escondida... e um mistério para resolver.','Converse com as pessoas (💬). Quando alguém tiver novidade para você, aparece um ❗ amarelo em cima da cabeça.','Lá no alto da tela fica o seu 🎯 objetivo, e o que você ganhar vai para a 🎒 bolsa. Toque nos lugares com 🔍 para investigar.','Cada chave tem uma letra gravada. Guarde bem, porque o cofre do tesouro pede uma senha! 🔐','Para andar, arraste o dedo pela tela: eu vou atrás dele! Para conversar ou investigar, é só tocar. Boa viagem! ✈'],
+      say(bia.name,'#1d3557',['Olá, {nome}! Bem-vinda ao Aeroporto Internacional {nome}. ✈','Hoje você vai dar a volta ao mundo! Em cada cidade tem uma chave escondida... e um mistério para resolver.','Converse com as pessoas (💬). Quando alguém tiver novidade para você, aparece um ❗ amarelo em cima da cabeça.','Lá no alto da tela fica o seu 🎯 objetivo, e o que você ganhar vai para a 🎒 bolsa. Toque nos lugares com 🔍 para investigar.','Cada chave tem uma letra gravada. Guarde bem, porque o cofre do tesouro pede uma senha! 🔐','Ah, e passagem não é de graça! 💸 Toque em 💼 Trabalhar para ganhar dinheiro na C&A e depois volte aqui.','Para andar, use o controle 🕹️ no canto da tela. Para conversar ou investigar, é só tocar. Boa viagem! ✈'],
         {onEnd:()=>{state.introDone=true;save();}});},700);}
   });
 });
-window.__dbg={setTarget,enterScene,state,getScene,showFinal,foundKey,CITY,player,cam,z:()=>Z,D,startMG,MG,MINI,Q,showLP,showPP};
+window.__dbg={JOY,goWork,cheapest,setTarget,enterScene,state,getScene,showFinal,foundKey,CITY,player,cam,z:()=>Z,D,startMG,MG,MINI,Q,showLP,showPP};
 requestAnimationFrame(loop);
 </script>
 </body>
